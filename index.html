@@ -12,7 +12,6 @@
             color: #e2e8f0;
             margin: 0;
             padding: 0;
-            line-height: 1.4;
         }
         .screen { 
             display: none; 
@@ -45,7 +44,7 @@
         .btn-green  { background: linear-gradient(135deg, #22c55e, #15803d); }
         .btn-red    { background: linear-gradient(135deg, #ef4444, #b91c1c); }
 
-        /* Экран таблицы */
+        /* Экран Потока Новичка */
         .table-screen h2 {
             text-align: center;
             margin: 10px 0 24px;
@@ -67,19 +66,22 @@
             padding: 18px;
             margin-bottom: 20px;
         }
+
+        /* Исправленная строка Депозит + Валюта */
         .deposit-row {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             align-items: center;
         }
         .deposit-input {
-            flex: 1;
+            flex: 1 1 auto;
+            min-width: 0;                 /* важно для предотвращения вылезания */
             padding: 16px;
             background: #334155;
             border: 2px solid #3b82f6;
             border-radius: 12px;
             color: white;
-            font-size: 1.25rem;
+            font-size: 1.22rem;
             text-align: center;
             box-sizing: border-box;
         }
@@ -91,14 +93,16 @@
             -webkit-appearance: none;
             margin: 0;
         }
+
         .currency-select {
-            padding: 16px 14px;
+            flex: 0 0 92px;               /* фиксированная ширина */
+            padding: 16px 10px;
             background: #334155;
             border: 2px solid #3b82f6;
             border-radius: 12px;
             color: white;
             font-size: 1.05rem;
-            min-width: 88px;
+            text-align: center;
         }
 
         .deposit-label {
@@ -147,7 +151,6 @@
 </head>
 <body>
 
-<!-- Главный экран -->
 <div id="mainScreen" class="screen active main-screen">
     <h1>FureZ<br>Calculator</h1>
     <button class="btn btn-blue" onclick="showNoviceFlow()">Поток Новичка</button>
@@ -156,7 +159,6 @@
     <button class="btn btn-red" onclick="alert('Стартовый Поток скоро будет доступен')">Стартовый Поток</button>
 </div>
 
-<!-- Экран Потока Новичка -->
 <div id="noviceScreen" class="screen table-screen">
     <button class="back-btn" onclick="backToMain()">← Назад на главный экран</button>
     <h2>Поток Новичка (ПН)</h2>
@@ -167,129 +169,4 @@
             <input type="number" id="deposit" class="deposit-input" value="100000" 
                    oninput="validateAndCalculate()">
             <select id="currency" class="currency-select" onchange="validateAndCalculate()">
-                <option value="RUB">RUB</option>
-                <option value="USDT">USDT</option>
-                <option value="EUR">EURO</option>
-                <option value="CNY">CNY</option>
-            </select>
-        </div>
-        <div class="note" id="limitNote">* от 2 000 до 200 000 RUB</div>
-        <div id="depositError" class="error"></div>
-    </div>
-
-    <div class="info">
-        Начальная сумма в потоке = Депозит + 50%<br>
-        <strong id="vPotokeInfo">150 000.00</strong>
-    </div>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Дата</th>
-                <th>День</th>
-                <th class="vpotoke">В потоке</th>
-                <th class="nach">Начисление (2%)</th>
-                <th class="koshelek">Кошелёк</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-    </table>
-</div>
-
-<script>
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
-
-    const limits = {
-        RUB: { min: 2000,   max: 200000,  symbol: 'RUB' },
-        USDT: { min: 20,    max: 2000,    symbol: 'USDT' },
-        EUR:  { min: 20,    max: 2000,    symbol: 'EURO' },
-        CNY:  { min: 160,   max: 16000,   symbol: 'CNY' }
-    };
-
-    function showScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(screenId).classList.add('active');
-    }
-
-    function showNoviceFlow() {
-        showScreen('noviceScreen');
-        validateAndCalculate();
-    }
-
-    function backToMain() {
-        showScreen('mainScreen');
-    }
-
-    function validateAndCalculate() {
-        const depositInput = document.getElementById('deposit');
-        const currencySelect = document.getElementById('currency');
-        const errorDiv = document.getElementById('depositError');
-        const noteDiv = document.getElementById('limitNote');
-
-        const currency = currencySelect.value;
-        const limit = limits[currency];
-        let deposit = parseFloat(depositInput.value) || 0;
-
-        noteDiv.textContent = `* от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
-
-        if (deposit < limit.min || deposit > limit.max) {
-            errorDiv.style.display = 'block';
-            errorDiv.textContent = `⚠ Сумма должна быть от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
-            return;
-        } else {
-            errorDiv.style.display = 'none';
-        }
-
-        calculateNovice(deposit, currency);
-    }
-
-    function calculateNovice(deposit, currency) {
-        const percent = 0.02;
-        const maxDays = 180;
-        let vPotoke = deposit * 1.5;
-        let koshelek = 0;
-        let dayCount = 0;
-
-        document.getElementById('vPotokeInfo').textContent = 
-            vPotoke.toLocaleString('ru-RU', { minimumFractionDigits: 2 }) + ' ' + currency;
-
-        let tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-
-        let currentDate = new Date();
-
-        while (dayCount < maxDays) {
-            if (currentDate.getDay() === 0) {
-                currentDate.setDate(currentDate.getDate() + 1);
-                continue;
-            }
-            dayCount++;
-            let nachislenie = vPotoke * percent;
-            koshelek += nachislenie;
-            vPotoke -= nachislenie;
-
-            let dateStr = currentDate.toLocaleDateString('ru-RU', {
-                day: '2-digit', month: '2-digit', year: 'numeric'
-            });
-
-            let row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${dateStr}</td>
-                <td>${dayCount}</td>
-                <td class="vpotoke">${vPotoke.toFixed(2)}</td>
-                <td class="nach">+${nachislenie.toFixed(2)}</td>
-                <td class="koshelek">${koshelek.toFixed(2)}</td>
-            `;
-            tbody.appendChild(row);
-
-            if (vPotoke < 0.01) break;
-            currentDate.setDate(currentDate.getDate() + 1);
-        }
-    }
-
-    window.onload = () => {};
-</script>
-</body>
-</html>
+                <option value="RUB">RUB
