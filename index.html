@@ -3,131 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ПН - Калькулятор</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <title>ПН Калькулятор</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            background: #111827; 
-            color: #fff; 
-            margin: 0; 
-            padding: 0;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            margin: 0;
+            padding: 12px;
         }
-        .container { padding: 16px; max-width: 100%; }
-        h1 { text-align: center; margin: 10px 0 20px; }
-        .upload-area {
-            border: 2px dashed #4f46e5;
-            border-radius: 16px;
-            padding: 40px 20px;
-            text-align: center;
-            background: #1f2937;
-            margin-bottom: 20px;
-            cursor: pointer;
+        h1 { text-align: center; margin: 10px 0 20px; font-size: 1.5rem; }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background: #1e2937;
+            border: 1px solid #475569;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            background: #1f2937;
+            margin-top: 20px;
+            background: #1e2937;
             font-size: 14px;
-            overflow-x: auto;
-            display: block;
         }
         th, td {
-            border: 1px solid #374151;
-            padding: 8px 10px;
-            text-align: right;
-            white-space: nowrap;
+            border: 1px solid #334155;
+            padding: 10px;
+            text-align: center;
         }
         th {
-            background: #374151;
-            color: #a5b4fc;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            background: #334155;
+            color: #c4d0ff;
         }
-        .error { color: #f87171; text-align: center; margin: 20px; }
-        .loading { text-align: center; color: #60a5fa; }
+        .result { 
+            font-weight: bold; 
+            color: #34d399; 
+        }
+        .header {
+            background: #1e40af;
+            color: white;
+            padding: 8px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>📊 Лист "ПН" — Поток Начислений</h1>
+    <h1>📊 Поток Начислений (ПН)</h1>
 
-    <div id="uploadArea" class="upload-area">
-        <p>Нажми здесь и выбери файл<br><strong>FureZ Calculator 6.0.xlsx</strong></p>
-        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none;">
+    <div class="header">Основные параметры</div>
+
+    <div class="input-group">
+        <label>Депозит (X) — от 2 000 до 200 000</label>
+        <input type="number" id="deposit" value="50000" oninput="calculate()">
     </div>
 
-    <div id="loading" class="loading" style="display:none;">Загружаем таблицу...</div>
-    <div id="tableContainer"></div>
-    <div id="error" class="error" style="display:none;"></div>
+    <div class="input-group">
+        <label>Фиксированный % в день (по умолчанию 0.02)</label>
+        <input type="number" id="dailyPercent" value="0.02" step="0.001" oninput="calculate()">
+    </div>
+
+    <div class="input-group">
+        <label>Количество дней</label>
+        <input type="number" id="days" value="30" oninput="calculate()">
+    </div>
+
+    <table id="resultTable">
+        <thead>
+            <tr>
+                <th>День</th>
+                <th>Дата (пример)</th>
+                <th>В потоке</th>
+                <th>Начисление за день</th>
+                <th>Кошелёк (накоплено)</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <div style="margin-top:20px; text-align:center; font-size:1.1rem;">
+        Итого начислено: <span id="totalAccrued" class="result">0</span>
+    </div>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
+    tg.setHeaderColor("#1e2937");
 
-    const fileInput = document.getElementById('fileInput');
-    const uploadArea = document.getElementById('uploadArea');
-    const tableContainer = document.getElementById('tableContainer');
-    const loading = document.getElementById('loading');
-    const errorDiv = document.getElementById('error');
+    function calculate() {
+        const deposit = parseFloat(document.getElementById('deposit').value) || 0;
+        const percent = parseFloat(document.getElementById('dailyPercent').value) || 0.02;
+        const maxDays = parseInt(document.getElementById('days').value) || 30;
 
-    // Клик по области загрузки
-    uploadArea.addEventListener('click', () => fileInput.click());
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
 
-    fileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+        let balance = deposit;
+        let totalAccrued = 0;
 
-        loading.style.display = 'block';
-        errorDiv.style.display = 'none';
-        tableContainer.innerHTML = '';
+        for (let day = 1; day <= maxDays; day++) {
+            const dailyAccrual = balance * percent;
+            totalAccrued += dailyAccrual;
+            balance += dailyAccrual;
 
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            try {
-                const data = new Uint8Array(event.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${day}</td>
+                <td>День ${day}</td>
+                <td>${balance.toFixed(2)}</td>
+                <td class="result">+${dailyAccrual.toFixed(2)}</td>
+                <td>${balance.toFixed(2)}</td>
+            `;
+            tbody.appendChild(row);
+        }
 
-                // Ищем лист с именем "ПН"
-                const sheetName = workbook.SheetNames.find(name => name === 'ПН');
-                if (!sheetName) {
-                    throw new Error('Лист "ПН" не найден в файле!');
-                }
+        document.getElementById('totalAccrued').textContent = totalAccrued.toFixed(2) + ' ECR';
+    }
 
-                const worksheet = workbook.Sheets[sheetName];
-                const html = XLSX.utils.sheet_to_html(worksheet, {
-                    header: 1,
-                    editable: false
-                });
-
-                tableContainer.innerHTML = html;
-                loading.style.display = 'none';
-
-                // Делаем таблицу прокручиваемой
-                const table = tableContainer.querySelector('table');
-                if (table) {
-                    table.style.maxHeight = '70vh';
-                    table.style.overflow = 'auto';
-                }
-
-            } catch (err) {
-                loading.style.display = 'none';
-                errorDiv.textContent = 'Ошибка: ' + err.message;
-                errorDiv.style.display = 'block';
-                console.error(err);
-            }
-        };
-
-        reader.readAsArrayBuffer(file);
-    });
-
-    // Подсказка при открытии
-    tg.showAlert("Загрузи свой файл FureZ Calculator 6.0.xlsx, чтобы увидеть лист «ПН»");
+    // Запуск при загрузке
+    window.onload = () => {
+        calculate();
+    };
 </script>
 </body>
 </html>
