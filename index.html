@@ -15,46 +15,48 @@
         }
         h1 { 
             text-align: center; 
-            margin: 10px 0 20px; 
-            font-size: 1.6rem; 
+            margin: 8px 0 16px; 
+            font-size: 1.55rem; 
         }
         .card {
             background: #1e2937;
             border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
+            padding: 14px;
+            margin-bottom: 14px;
         }
         label {
             display: block;
             margin-bottom: 6px;
             color: #94a3b8;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
         input {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             background: #334155;
             border: none;
             border-radius: 12px;
             color: white;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
         }
         .info {
             background: #334155;
             padding: 12px;
             border-radius: 12px;
-            margin-bottom: 16px;
-            font-size: 1rem;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+            line-height: 1.4;
         }
         table {
             width: 100%;
             border-collapse: collapse;
             background: #1e2937;
-            font-size: 14px;
+            font-size: 13.5px;
+            margin-top: 8px;
         }
         th, td {
             border: 1px solid #475569;
-            padding: 10px 8px;
+            padding: 9px 6px;
             text-align: center;
         }
         th {
@@ -65,7 +67,7 @@
         .koshelek { color: #60a5fa; font-weight: bold; }
         .vpotoke { color: #fbbf24; font-weight: bold; }
         .total {
-            margin-top: 20px;
+            margin-top: 18px;
             font-size: 1.25rem;
             text-align: center;
             background: #1e2937;
@@ -80,8 +82,8 @@
     <h1>📊 Поток Начислений (ПН)</h1>
 
     <div class="card">
-        <label>Депозит (X)</label>
-        <input type="number" id="deposit" value="100000" oninput="calculate()">
+        <label>Депозит (X) — от 2 000 до 200 000</label>
+        <input type="number" id="deposit" value="100000" min="2000" max="200000" oninput="validateAndCalculate()">
     </div>
 
     <div class="info">
@@ -89,20 +91,21 @@
         <strong id="vPotokeInfo">150 000.00</strong>
     </div>
 
-    <table id="pnTable">
+    <table>
         <thead>
             <tr>
+                <th>Дата</th>
                 <th>День</th>
                 <th class="vpotoke">В потоке</th>
-                <th class="nach">Начисление (0.2%)</th>
-                <th class="koshelek">Кошелёк</th>
+                <th class="nach">Начисление (2%)</th>
+                <th class="koshelek">Кошелёк (RUB)</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
     </table>
 
     <div class="total">
-        Итого в кошельке: <span id="totalKoshelek" class="koshelek">0.00</span> ECR
+        Итого в кошельке: <span id="totalKoshelek" class="koshelek">0.00</span> RUB
     </div>
 </div>
 
@@ -111,44 +114,70 @@
     tg.ready();
     tg.expand();
 
-    function calculate() {
-        let deposit = parseFloat(document.getElementById('deposit').value) || 0;
-        const percent = 0.02;        // 0.2%
-        let maxDays = 180;            // можно изменить на любое количество дней
+    function validateAndCalculate() {
+        let depositInput = document.getElementById('deposit');
+        let deposit = parseFloat(depositInput.value) || 2000;
 
-        // Начальная сумма в потоке = Депозит + 50%
+        // Ограничение 2000 - 200000
+        if (deposit < 2000) deposit = 2000;
+        if (deposit > 200000) deposit = 200000;
+
+        depositInput.value = deposit;
+        calculate(deposit);
+    }
+
+    function calculate(deposit) {
+        const percent = 0.02;           // 2%
+        const maxDays = 180;
+
         let vPotoke = deposit * 1.5;
         let koshelek = 0;
+        let dayCount = 0;
 
-        // Обновляем информацию сверху
-        document.getElementById('vPotokeInfo').textContent = vPotoke.toLocaleString('ru-RU', {minimumFractionDigits: 2});
+        document.getElementById('vPotokeInfo').textContent = 
+            vPotoke.toLocaleString('ru-RU', { minimumFractionDigits: 2 });
 
         let tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
 
-        for (let day = 1; day <= maxDays; day++) {
+        let currentDate = new Date();
+
+        while (dayCount < maxDays) {
+            // Пропускаем воскресенье (0 = воскресенье)
+            if (currentDate.getDay() === 0) {
+                currentDate.setDate(currentDate.getDate() + 1);
+                continue;
+            }
+
+            dayCount++;
+
             let nachislenie = vPotoke * percent;
             koshelek += nachislenie;
-            vPotoke -= nachislenie;                     // уменьшаем поток
+            vPotoke -= nachislenie;
+
+            // Форматируем дату
+            let dateStr = currentDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
             let row = document.createElement('tr');
             row.innerHTML = `
-                <td>${day}</td>
+                <td>${dateStr}</td>
+                <td>${dayCount}</td>
                 <td class="vpotoke">${vPotoke.toFixed(2)}</td>
                 <td class="nach">+${nachislenie.toFixed(2)}</td>
                 <td class="koshelek">${koshelek.toFixed(2)}</td>
             `;
             tbody.appendChild(row);
 
-            // Останавливаем, если поток стал очень маленьким
             if (vPotoke < 0.01) break;
+
+            currentDate.setDate(currentDate.getDate() + 1);
         }
 
         document.getElementById('totalKoshelek').textContent = koshelek.toFixed(2);
     }
 
-    // Автоматический расчёт при загрузке
-    window.onload = calculate;
+    // Запуск
+    window.onload = () => validateAndCalculate();
 </script>
 </body>
 </html>
