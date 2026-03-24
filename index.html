@@ -38,8 +38,6 @@
             font-size: 1.1rem;
             font-weight: 600;
             color: white;
-            text-align: center;
-            cursor: pointer;
         }
         .btn-blue   { background: linear-gradient(135deg, #3b82f6, #1e40af); }
         .btn-yellow { background: linear-gradient(135deg, #fbbf24, #d97706); }
@@ -50,7 +48,7 @@
         .table-screen h2 {
             text-align: center;
             margin: 10px 0 20px;
-            font-size: 1.5rem;
+            font-size: 1.55rem;
         }
         .back-btn {
             background: #475569;
@@ -65,41 +63,60 @@
         .card {
             background: #1e2937;
             border-radius: 16px;
-            padding: 14px;
-            margin-bottom: 14px;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            background: #334155;
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-size: 1.05rem;
+            padding: 16px;
+            margin-bottom: 16px;
         }
         label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             color: #94a3b8;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
         }
+        input {
+            width: 100%;
+            padding: 14px;
+            background: #334155;
+            border: 2px solid #475569;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        input:focus {
+            border-color: #60a5fa;
+            outline: none;
+        }
+        .note {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 6px;
+        }
+        .error {
+            color: #f87171;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            text-align: center;
+            display: none;
+        }
+
         .info {
             background: #334155;
             padding: 12px;
             border-radius: 12px;
-            margin-bottom: 14px;
+            margin-bottom: 16px;
             font-size: 0.95rem;
+            line-height: 1.4;
         }
         table {
             width: 100%;
             border-collapse: collapse;
             background: #1e2937;
-            font-size: 13.5px;
+            font-size: 13.8px;
             margin-top: 8px;
         }
         th, td {
             border: 1px solid #475569;
-            padding: 9px 6px;
+            padding: 10px 6px;
             text-align: center;
         }
         th { background: #334155; color: #c4d0ff; }
@@ -118,7 +135,7 @@
 </head>
 <body>
 
-<!-- ==================== ГЛАВНЫЙ ЭКРАН ==================== -->
+<!-- Главный экран -->
 <div id="mainScreen" class="screen active main-screen">
     <h1>FureZ<br>Calculator</h1>
     
@@ -128,14 +145,16 @@
     <button class="btn btn-red" onclick="alert('Стартовый Поток скоро будет доступен')">Стартовый Поток</button>
 </div>
 
-<!-- ==================== ЭКРАН ПОТОКА НОВИЧКА ==================== -->
+<!-- Экран Потока Новичка -->
 <div id="noviceScreen" class="screen table-screen">
     <button class="back-btn" onclick="backToMain()">← Назад на главный экран</button>
     <h2>Поток Новичка (ПН)</h2>
 
     <div class="card">
-        <label>Депозит (X) — от 2 000 до 200 000 RUB</label>
-        <input type="number" id="deposit" value="100000" min="2000" max="200000" oninput="validateAndCalculate()">
+        <label>Депозит</label>
+        <input type="number" id="deposit" value="100000" oninput="validateAndCalculate()">
+        <div class="note">* от 2 000 до 200 000 RUB</div>
+        <div id="depositError" class="error">⚠ Сумма должна быть от 2 000 до 200 000 RUB</div>
     </div>
 
     <div class="info">
@@ -166,32 +185,34 @@
     tg.ready();
     tg.expand();
 
-    // Переключение экранов
     function showScreen(screenId) {
-        document.querySelectorAll('.screen').forEach(screen => {
-            screen.classList.remove('active');
-        });
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
     }
 
     function showNoviceFlow() {
         showScreen('noviceScreen');
-        validateAndCalculate();   // сразу рассчитать таблицу
+        validateAndCalculate();
     }
 
     function backToMain() {
         showScreen('mainScreen');
     }
 
-    // Расчёт таблицы Потока Новичка
     function validateAndCalculate() {
-        let depositInput = document.getElementById('deposit');
-        let deposit = parseFloat(depositInput.value) || 2000;
+        const depositInput = document.getElementById('deposit');
+        const errorDiv = document.getElementById('depositError');
+        let deposit = parseFloat(depositInput.value);
 
-        if (deposit < 2000) deposit = 2000;
-        if (deposit > 200000) deposit = 200000;
+        // Проверка диапазона
+        if (isNaN(deposit) || deposit < 2000 || deposit > 200000) {
+            errorDiv.style.display = 'block';
+            // Не обновляем таблицу при ошибке
+            return;
+        } else {
+            errorDiv.style.display = 'none';
+        }
 
-        depositInput.value = deposit;
         calculateNovice(deposit);
     }
 
@@ -212,7 +233,7 @@
         let currentDate = new Date();
 
         while (dayCount < maxDays) {
-            if (currentDate.getDay() === 0) { // пропуск воскресенья
+            if (currentDate.getDay() === 0) {
                 currentDate.setDate(currentDate.getDate() + 1);
                 continue;
             }
@@ -244,10 +265,7 @@
         document.getElementById('totalKoshelek').textContent = koshelek.toFixed(2);
     }
 
-    // Запуск приложения
-    window.onload = () => {
-        // По умолчанию открываем главный экран
-    };
+    window.onload = () => {};
 </script>
 </body>
 </html>
