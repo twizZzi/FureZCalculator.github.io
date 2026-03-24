@@ -13,14 +13,8 @@
             margin: 0;
             padding: 0;
         }
-        .screen {
-            display: none;
-            min-height: 100vh;
-            padding: 16px;
-        }
-        .screen.active {
-            display: block;
-        }
+        .screen { display: none; min-height: 100vh; padding: 16px; }
+        .screen.active { display: block; }
 
         /* Главный экран */
         .main-screen h1 {
@@ -44,7 +38,7 @@
         .btn-green  { background: linear-gradient(135deg, #22c55e, #15803d); }
         .btn-red    { background: linear-gradient(135deg, #ef4444, #b91c1c); }
 
-        /* Экран таблицы */
+        /* Экран Потока Новичка */
         .table-screen h2 {
             text-align: center;
             margin: 10px 0 20px;
@@ -60,32 +54,42 @@
             margin-bottom: 15px;
         }
 
+        /* Карточка Депозит — исправленная версия */
         .card {
             background: #1e2937;
             border-radius: 16px;
-            padding: 16px;
+            padding: 16px 16px 12px;
             margin-bottom: 16px;
         }
-        label {
+        .deposit-label {
             display: block;
             margin-bottom: 8px;
             color: #94a3b8;
             font-size: 0.95rem;
         }
-        input {
+        .deposit-input {
             width: 100%;
-            padding: 14px;
+            padding: 16px;
             background: #334155;
-            border: 2px solid #475569;
+            border: 2px solid #3b82f6;
             border-radius: 12px;
             color: white;
-            font-size: 1.1rem;
+            font-size: 1.25rem;
             text-align: center;
+            box-sizing: border-box;           /* важно! */
+            appearance: none;
+            -webkit-appearance: none;
         }
-        input:focus {
+        .deposit-input:focus {
             border-color: #60a5fa;
             outline: none;
         }
+        .deposit-input::-webkit-outer-spin-button,
+        .deposit-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
         .note {
             font-size: 0.85rem;
             color: #64748b;
@@ -138,7 +142,6 @@
 <!-- Главный экран -->
 <div id="mainScreen" class="screen active main-screen">
     <h1>FureZ<br>Calculator</h1>
-    
     <button class="btn btn-blue" onclick="showNoviceFlow()">Поток Новичка</button>
     <button class="btn btn-yellow" onclick="alert('Быстрый Поток скоро будет доступен')">Быстрый Поток</button>
     <button class="btn btn-green" onclick="alert('Растущий Поток скоро будет доступен')">Растущий Поток</button>
@@ -151,8 +154,9 @@
     <h2>Поток Новичка (ПН)</h2>
 
     <div class="card">
-        <label>Депозит</label>
-        <input type="number" id="deposit" value="100000" oninput="validateAndCalculate()">
+        <label class="deposit-label">Депозит</label>
+        <input type="number" id="deposit" class="deposit-input" value="100000" 
+               oninput="validateAndCalculate()">
         <div class="note">* от 2 000 до 200 000 RUB</div>
         <div id="depositError" class="error">⚠ Сумма должна быть от 2 000 до 200 000 RUB</div>
     </div>
@@ -204,10 +208,8 @@
         const errorDiv = document.getElementById('depositError');
         let deposit = parseFloat(depositInput.value);
 
-        // Проверка диапазона
         if (isNaN(deposit) || deposit < 2000 || deposit > 200000) {
             errorDiv.style.display = 'block';
-            // Не обновляем таблицу при ошибке
             return;
         } else {
             errorDiv.style.display = 'none';
@@ -219,7 +221,6 @@
     function calculateNovice(deposit) {
         const percent = 0.02;
         const maxDays = 180;
-
         let vPotoke = deposit * 1.5;
         let koshelek = 0;
         let dayCount = 0;
@@ -237,9 +238,7 @@
                 currentDate.setDate(currentDate.getDate() + 1);
                 continue;
             }
-
             dayCount++;
-
             let nachislenie = vPotoke * percent;
             koshelek += nachislenie;
             vPotoke -= nachislenie;
