@@ -3,181 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Крипто Курс</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>ПН - Калькулятор</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        .price { font-size: 2.5rem; font-weight: 700; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: #111827; 
+            color: #fff; 
+            margin: 0; 
+            padding: 0;
+        }
+        .container { padding: 16px; max-width: 100%; }
+        h1 { text-align: center; margin: 10px 0 20px; }
+        .upload-area {
+            border: 2px dashed #4f46e5;
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            background: #1f2937;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1f2937;
+            font-size: 14px;
+            overflow-x: auto;
+            display: block;
+        }
+        th, td {
+            border: 1px solid #374151;
+            padding: 8px 10px;
+            text-align: right;
+            white-space: nowrap;
+        }
+        th {
+            background: #374151;
+            color: #a5b4fc;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .error { color: #f87171; text-align: center; margin: 20px; }
+        .loading { text-align: center; color: #60a5fa; }
     </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen">
+<body>
 
-<div class="max-w-md mx-auto p-4">
-    <!-- Заголовок Telegram -->
-    <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-yellow-500 rounded-2xl flex items-center justify-center text-2xl">₿</div>
-            <h1 class="text-2xl font-bold">Крипто Курс</h1>
-        </div>
-        <button onclick="toggleTheme()" class="text-gray-400 hover:text-white">
-            🌗
-        </button>
+<div class="container">
+    <h1>📊 Лист "ПН" — Поток Начислений</h1>
+
+    <div id="uploadArea" class="upload-area">
+        <p>Нажми здесь и выбери файл<br><strong>FureZ Calculator 6.0.xlsx</strong></p>
+        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none;">
     </div>
 
-    <!-- Выбор криптовалюты -->
-    <div class="mb-6">
-        <label class="block text-sm text-gray-400 mb-1">Криптовалюта</label>
-        <select id="cryptoSelect" onchange="fetchPrices()" class="w-full bg-gray-800 text-white rounded-2xl px-4 py-3 focus:outline-none">
-            <option value="bitcoin">Bitcoin (BTC)</option>
-            <option value="ethereum">Ethereum (ETH)</option>
-            <option value="solana">Solana (SOL)</option>
-        </select>
-    </div>
-
-    <!-- Текущий курс -->
-    <div class="bg-gray-800 rounded-3xl p-6 mb-8">
-        <div class="flex justify-between items-baseline mb-2">
-            <span class="text-gray-400">Текущий курс</span>
-            <span id="lastUpdated" class="text-xs text-gray-500"></span>
-        </div>
-        <div id="priceDisplay" class="price text-emerald-400">—</div>
-        <div id="priceChange" class="text-sm mt-1"></div>
-    </div>
-
-    <!-- Конвертер -->
-    <div class="bg-gray-800 rounded-3xl p-6">
-        <h2 class="text-lg font-semibold mb-4">Конвертер</h2>
-        
-        <div class="grid grid-cols-2 gap-4">
-            <!-- Сумма крипты -->
-            <div>
-                <label class="block text-sm text-gray-400 mb-1">Сумма</label>
-                <input id="amountInput" type="number" value="1" step="0.0001"
-                       class="w-full bg-gray-700 text-white rounded-2xl px-4 py-3 focus:outline-none">
-                <div id="cryptoSymbol" class="text-xs text-gray-400 mt-1 text-center">BTC</div>
-            </div>
-
-            <!-- Валюта -->
-            <div>
-                <label class="block text-sm text-gray-400 mb-1">Валюта</label>
-                <select id="currencySelect" class="w-full bg-gray-700 text-white rounded-2xl px-4 py-3 focus:outline-none">
-                    <option value="usd">USD ($)</option>
-                    <option value="eur">EUR (€)</option>
-                    <option value="rub" selected>RUB (₽)</option>
-                    <option value="try">TRY (₺)</option>
-                    <option value="cny">CNY (¥)</option>
-                </select>
-            </div>
-        </div>
-
-        <button onclick="convertCurrency()" 
-                class="mt-6 w-full bg-emerald-500 hover:bg-emerald-600 transition py-4 rounded-3xl text-lg font-semibold">
-            Конвертировать →
-        </button>
-
-        <div id="result" class="mt-6 text-center text-2xl font-bold text-emerald-400 min-h-[2.5rem]"></div>
-    </div>
-
-    <div class="text-center text-xs text-gray-500 mt-8">
-        Обновляется автоматически каждые 30 сек • Данные CoinGecko
-    </div>
+    <div id="loading" class="loading" style="display:none;">Загружаем таблицу...</div>
+    <div id="tableContainer"></div>
+    <div id="error" class="error" style="display:none;"></div>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
-    tg.setHeaderColor("#111827"); // тёмный заголовок
 
-    let currentPrices = {};
+    const fileInput = document.getElementById('fileInput');
+    const uploadArea = document.getElementById('uploadArea');
+    const tableContainer = document.getElementById('tableContainer');
+    const loading = document.getElementById('loading');
+    const errorDiv = document.getElementById('error');
 
-    const cryptoIds = {
-        bitcoin: "Bitcoin",
-        ethereum: "Ethereum",
-        solana: "Solana"
-    };
+    // Клик по области загрузки
+    uploadArea.addEventListener('click', () => fileInput.click());
 
-    // Основной запрос к CoinGecko (бесплатно, без ключа)
-    async function fetchPrices() {
-        const crypto = document.getElementById('cryptoSelect').value;
-        const vsCurrencies = 'usd,eur,rub,try,cny';
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-        try {
-            const res = await fetch(
-                `https://api.coingecko.com/api/v3/simple/price?ids=${crypto}&vs_currencies=${vsCurrencies}&include_24hr_change=true&include_last_updated_at=true`
-            );
-            const data = await res.json();
-            currentPrices = data[crypto];
+        loading.style.display = 'block';
+        errorDiv.style.display = 'none';
+        tableContainer.innerHTML = '';
 
-            // Обновляем отображение курса
-            const selectedCurrency = document.getElementById('currencySelect').value;
-            const price = currentPrices[selectedCurrency];
-            const change = currentPrices[`${selectedCurrency}_24h_change`];
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            try {
+                const data = new Uint8Array(event.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
 
-            document.getElementById('priceDisplay').textContent = 
-                `${price.toLocaleString('ru-RU')} ${selectedCurrency.toUpperCase()}`;
+                // Ищем лист с именем "ПН"
+                const sheetName = workbook.SheetNames.find(name => name === 'ПН');
+                if (!sheetName) {
+                    throw new Error('Лист "ПН" не найден в файле!');
+                }
 
-            const changeEl = document.getElementById('priceChange');
-            changeEl.innerHTML = change > 0 
-                ? `<span class="text-emerald-400">▲ +${change.toFixed(2)}%</span>` 
-                : `<span class="text-red-400">▼ ${change.toFixed(2)}%</span>`;
+                const worksheet = workbook.Sheets[sheetName];
+                const html = XLSX.utils.sheet_to_html(worksheet, {
+                    header: 1,
+                    editable: false
+                });
 
-            document.getElementById('lastUpdated').textContent = 
-                `Обновлено: ${new Date(currentPrices.last_updated_at * 1000).toLocaleTimeString('ru-RU')}`;
+                tableContainer.innerHTML = html;
+                loading.style.display = 'none';
 
-            document.getElementById('cryptoSymbol').textContent = cryptoIds[crypto];
+                // Делаем таблицу прокручиваемой
+                const table = tableContainer.querySelector('table');
+                if (table) {
+                    table.style.maxHeight = '70vh';
+                    table.style.overflow = 'auto';
+                }
 
-        } catch (e) {
-            console.error(e);
-            document.getElementById('priceDisplay').textContent = 'Ошибка загрузки';
-        }
-    }
+            } catch (err) {
+                loading.style.display = 'none';
+                errorDiv.textContent = 'Ошибка: ' + err.message;
+                errorDiv.style.display = 'block';
+                console.error(err);
+            }
+        };
 
-    // Конвертация
-    function convertCurrency() {
-        const amount = parseFloat(document.getElementById('amountInput').value) || 0;
-        const crypto = document.getElementById('cryptoSelect').value;
-        const targetCurrency = document.getElementById('currencySelect').value;
-        
-        if (!currentPrices[targetCurrency]) {
-            document.getElementById('result').textContent = 'Сначала обновите курс';
-            return;
-        }
+        reader.readAsArrayBuffer(file);
+    });
 
-        const result = amount * currentPrices[targetCurrency];
-        document.getElementById('result').innerHTML = `
-            ${amount} ${cryptoIds[crypto]} = 
-            <span class="text-3xl">${result.toLocaleString('ru-RU')}</span> 
-            ${targetCurrency.toUpperCase()}
-        `;
-    }
-
-    // Автоматическое обновление
-    function startAutoUpdate() {
-        fetchPrices();
-        setInterval(fetchPrices, 30000); // каждые 30 секунд
-    }
-
-    // Переключение темы (на всякий случай)
-    function toggleTheme() {
-        if (document.documentElement.classList.contains('light')) {
-            document.documentElement.classList.remove('light');
-            tg.setHeaderColor("#111827");
-        } else {
-            document.documentElement.classList.add('light');
-            tg.setHeaderColor("#f3f4f6");
-        }
-    }
-
-    // Запуск
-    window.onload = () => {
-        startAutoUpdate();
-        
-        // При смене валюты сразу пересчитываем отображение
-        document.getElementById('currencySelect').addEventListener('change', () => {
-            if (Object.keys(currentPrices).length > 0) fetchPrices();
-        });
-    };
+    // Подсказка при открытии
+    tg.showAlert("Загрузи свой файл FureZ Calculator 6.0.xlsx, чтобы увидеть лист «ПН»");
 </script>
 </body>
 </html>
