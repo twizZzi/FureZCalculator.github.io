@@ -13,52 +13,64 @@
             margin: 0;
             padding: 12px;
         }
-        h1 { text-align: center; margin: 10px 0 20px; font-size: 1.5rem; }
-        .input-group {
-            margin-bottom: 15px;
+        h1 { 
+            text-align: center; 
+            margin: 10px 0 20px; 
+            font-size: 1.6rem; 
+        }
+        .card {
+            background: #1e2937;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
         }
         label {
             display: block;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
+            margin-bottom: 6px;
             color: #94a3b8;
+            font-size: 0.95rem;
         }
-        input, select {
+        input {
             width: 100%;
-            padding: 12px;
-            background: #1e2937;
-            border: 1px solid #475569;
+            padding: 14px;
+            background: #334155;
+            border: none;
             border-radius: 12px;
             color: white;
+            font-size: 1.1rem;
+        }
+        .info {
+            background: #334155;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 16px;
             font-size: 1rem;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
             background: #1e2937;
             font-size: 14px;
         }
         th, td {
-            border: 1px solid #334155;
-            padding: 10px;
+            border: 1px solid #475569;
+            padding: 10px 8px;
             text-align: center;
         }
         th {
             background: #334155;
             color: #c4d0ff;
         }
-        .result { 
-            font-weight: bold; 
-            color: #34d399; 
-        }
-        .header {
-            background: #1e40af;
-            color: white;
-            padding: 8px;
+        .nach { color: #34d399; font-weight: bold; }
+        .koshelek { color: #60a5fa; font-weight: bold; }
+        .vpotoke { color: #fbbf24; font-weight: bold; }
+        .total {
+            margin-top: 20px;
+            font-size: 1.25rem;
             text-align: center;
-            border-radius: 8px;
-            margin-bottom: 15px;
+            background: #1e2937;
+            padding: 14px;
+            border-radius: 12px;
         }
     </style>
 </head>
@@ -67,38 +79,30 @@
 <div class="container">
     <h1>📊 Поток Начислений (ПН)</h1>
 
-    <div class="header">Основные параметры</div>
-
-    <div class="input-group">
-        <label>Депозит (X) — от 2 000 до 200 000</label>
-        <input type="number" id="deposit" value="50000" oninput="calculate()">
+    <div class="card">
+        <label>Депозит (X)</label>
+        <input type="number" id="deposit" value="100000" oninput="calculate()">
     </div>
 
-    <div class="input-group">
-        <label>Фиксированный % в день (по умолчанию 0.02)</label>
-        <input type="number" id="dailyPercent" value="0.02" step="0.001" oninput="calculate()">
+    <div class="info">
+        Начальная сумма в потоке = Депозит + 50%<br>
+        <strong id="vPotokeInfo">150 000.00</strong>
     </div>
 
-    <div class="input-group">
-        <label>Количество дней</label>
-        <input type="number" id="days" value="30" oninput="calculate()">
-    </div>
-
-    <table id="resultTable">
+    <table id="pnTable">
         <thead>
             <tr>
                 <th>День</th>
-                <th>Дата (пример)</th>
-                <th>В потоке</th>
-                <th>Начисление за день</th>
-                <th>Кошелёк (накоплено)</th>
+                <th class="vpotoke">В потоке</th>
+                <th class="nach">Начисление (0.2%)</th>
+                <th class="koshelek">Кошелёк</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
     </table>
 
-    <div style="margin-top:20px; text-align:center; font-size:1.1rem;">
-        Итого начислено: <span id="totalAccrued" class="result">0</span>
+    <div class="total">
+        Итого в кошельке: <span id="totalKoshelek" class="koshelek">0.00</span> ECR
     </div>
 </div>
 
@@ -106,42 +110,45 @@
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
-    tg.setHeaderColor("#1e2937");
 
     function calculate() {
-        const deposit = parseFloat(document.getElementById('deposit').value) || 0;
-        const percent = parseFloat(document.getElementById('dailyPercent').value) || 0.02;
-        const maxDays = parseInt(document.getElementById('days').value) || 30;
+        let deposit = parseFloat(document.getElementById('deposit').value) || 0;
+        const percent = 0.002;        // 0.2%
+        let maxDays = 180;            // можно изменить на любое количество дней
 
-        const tbody = document.getElementById('tableBody');
+        // Начальная сумма в потоке = Депозит + 50%
+        let vPotoke = deposit * 1.5;
+        let koshelek = 0;
+
+        // Обновляем информацию сверху
+        document.getElementById('vPotokeInfo').textContent = vPotoke.toLocaleString('ru-RU', {minimumFractionDigits: 2});
+
+        let tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
 
-        let balance = deposit;
-        let totalAccrued = 0;
-
         for (let day = 1; day <= maxDays; day++) {
-            const dailyAccrual = balance * percent;
-            totalAccrued += dailyAccrual;
-            balance += dailyAccrual;
+            let nachislenie = vPotoke * percent;
+            koshelek += nachislenie;
+            vPotoke -= nachislenie;                     // уменьшаем поток
 
-            const row = document.createElement('tr');
+            let row = document.createElement('tr');
             row.innerHTML = `
                 <td>${day}</td>
-                <td>День ${day}</td>
-                <td>${balance.toFixed(2)}</td>
-                <td class="result">+${dailyAccrual.toFixed(2)}</td>
-                <td>${balance.toFixed(2)}</td>
+                <td class="vpotoke">${vPotoke.toFixed(2)}</td>
+                <td class="nach">+${nachislenie.toFixed(2)}</td>
+                <td class="koshelek">${koshelek.toFixed(2)}</td>
             `;
             tbody.appendChild(row);
+
+            // Останавливаем, если поток стал очень маленьким
+            if (vPotoke < 0.01) break;
         }
 
-        document.getElementById('totalAccrued').textContent = totalAccrued.toFixed(2) + ' ECR';
+        document.getElementById('totalKoshelek').textContent = koshelek.toFixed(2);
     }
 
-    // Запуск при загрузке
-    window.onload = () => {
-        calculate();
-    };
+    // Автоматический расчёт при загрузке
+    window.onload = calculate;
 </script>
 </body>
 </html>
