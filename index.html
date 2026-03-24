@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ПН Калькулятор</title>
+    <title>FureZ Calculator</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
@@ -11,24 +11,62 @@
             background: #0f172a;
             color: #e2e8f0;
             margin: 0;
-            padding: 12px;
+            padding: 0;
         }
-        h1 { 
-            text-align: center; 
-            margin: 8px 0 16px; 
-            font-size: 1.55rem; 
+        .screen {
+            display: none;
+            min-height: 100vh;
+            padding: 16px;
         }
+        .screen.active {
+            display: block;
+        }
+
+        /* Главный экран */
+        .main-screen h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin: 40px 0 50px;
+            color: #a5b4fc;
+        }
+        .btn {
+            width: 100%;
+            padding: 18px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+        }
+        .btn-blue   { background: linear-gradient(135deg, #3b82f6, #1e40af); }
+        .btn-yellow { background: linear-gradient(135deg, #fbbf24, #d97706); }
+        .btn-green  { background: linear-gradient(135deg, #22c55e, #15803d); }
+        .btn-red    { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+
+        /* Экран таблицы */
+        .table-screen h2 {
+            text-align: center;
+            margin: 10px 0 20px;
+            font-size: 1.5rem;
+        }
+        .back-btn {
+            background: #475569;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
         .card {
             background: #1e2937;
             border-radius: 16px;
             padding: 14px;
             margin-bottom: 14px;
-        }
-        label {
-            display: block;
-            margin-bottom: 6px;
-            color: #94a3b8;
-            font-size: 0.9rem;
         }
         input {
             width: 100%;
@@ -39,13 +77,18 @@
             color: white;
             font-size: 1.05rem;
         }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
         .info {
             background: #334155;
             padding: 12px;
             border-radius: 12px;
             margin-bottom: 14px;
             font-size: 0.95rem;
-            line-height: 1.4;
         }
         table {
             width: 100%;
@@ -59,15 +102,12 @@
             padding: 9px 6px;
             text-align: center;
         }
-        th {
-            background: #334155;
-            color: #c4d0ff;
-        }
+        th { background: #334155; color: #c4d0ff; }
         .nach { color: #34d399; font-weight: bold; }
         .koshelek { color: #60a5fa; font-weight: bold; }
         .vpotoke { color: #fbbf24; font-weight: bold; }
         .total {
-            margin-top: 18px;
+            margin-top: 20px;
             font-size: 1.25rem;
             text-align: center;
             background: #1e2937;
@@ -78,11 +118,23 @@
 </head>
 <body>
 
-<div class="container">
-    <h1>📊 Поток Начислений (ПН)</h1>
+<!-- ==================== ГЛАВНЫЙ ЭКРАН ==================== -->
+<div id="mainScreen" class="screen active main-screen">
+    <h1>FureZ<br>Calculator</h1>
+    
+    <button class="btn btn-blue" onclick="showNoviceFlow()">Поток Новичка</button>
+    <button class="btn btn-yellow" onclick="alert('Быстрый Поток скоро будет доступен')">Быстрый Поток</button>
+    <button class="btn btn-green" onclick="alert('Растущий Поток скоро будет доступен')">Растущий Поток</button>
+    <button class="btn btn-red" onclick="alert('Стартовый Поток скоро будет доступен')">Стартовый Поток</button>
+</div>
+
+<!-- ==================== ЭКРАН ПОТОКА НОВИЧКА ==================== -->
+<div id="noviceScreen" class="screen table-screen">
+    <button class="back-btn" onclick="backToMain()">← Назад на главный экран</button>
+    <h2>Поток Новичка (ПН)</h2>
 
     <div class="card">
-        <label>Депозит (X) — от 2 000 до 200 000</label>
+        <label>Депозит (X) — от 2 000 до 200 000 RUB</label>
         <input type="number" id="deposit" value="100000" min="2000" max="200000" oninput="validateAndCalculate()">
     </div>
 
@@ -114,20 +166,37 @@
     tg.ready();
     tg.expand();
 
+    // Переключение экранов
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(screen => {
+            screen.classList.remove('active');
+        });
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function showNoviceFlow() {
+        showScreen('noviceScreen');
+        validateAndCalculate();   // сразу рассчитать таблицу
+    }
+
+    function backToMain() {
+        showScreen('mainScreen');
+    }
+
+    // Расчёт таблицы Потока Новичка
     function validateAndCalculate() {
         let depositInput = document.getElementById('deposit');
         let deposit = parseFloat(depositInput.value) || 2000;
 
-        // Ограничение 2000 - 200000
         if (deposit < 2000) deposit = 2000;
         if (deposit > 200000) deposit = 200000;
 
         depositInput.value = deposit;
-        calculate(deposit);
+        calculateNovice(deposit);
     }
 
-    function calculate(deposit) {
-        const percent = 0.02;           // 2%
+    function calculateNovice(deposit) {
+        const percent = 0.02;
         const maxDays = 180;
 
         let vPotoke = deposit * 1.5;
@@ -143,8 +212,7 @@
         let currentDate = new Date();
 
         while (dayCount < maxDays) {
-            // Пропускаем воскресенье (0 = воскресенье)
-            if (currentDate.getDay() === 0) {
+            if (currentDate.getDay() === 0) { // пропуск воскресенья
                 currentDate.setDate(currentDate.getDate() + 1);
                 continue;
             }
@@ -155,8 +223,9 @@
             koshelek += nachislenie;
             vPotoke -= nachislenie;
 
-            // Форматируем дату
-            let dateStr = currentDate.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            let dateStr = currentDate.toLocaleDateString('ru-RU', {
+                day: '2-digit', month: '2-digit', year: 'numeric'
+            });
 
             let row = document.createElement('tr');
             row.innerHTML = `
@@ -169,15 +238,16 @@
             tbody.appendChild(row);
 
             if (vPotoke < 0.01) break;
-
             currentDate.setDate(currentDate.getDate() + 1);
         }
 
         document.getElementById('totalKoshelek').textContent = koshelek.toFixed(2);
     }
 
-    // Запуск
-    window.onload = () => validateAndCalculate();
+    // Запуск приложения
+    window.onload = () => {
+        // По умолчанию открываем главный экран
+    };
 </script>
 </body>
 </html>
