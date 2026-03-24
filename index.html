@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FureZ Calculator</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -12,31 +12,24 @@
             color: #e2e8f0;
             margin: 0;
             padding: 0;
-            line-height: 1.4;
         }
-        .screen { 
-            display: none; 
-            min-height: 100vh; 
-            padding: 16px; 
-            max-width: 480px; 
-            margin: 0 auto; 
-        }
+        .screen { display: none; min-height: 100vh; padding: 16px; }
         .screen.active { display: block; }
 
         /* Главный экран */
         .main-screen h1 {
             text-align: center;
-            font-size: 2.1rem;
-            margin: 50px 0 60px;
+            font-size: 2rem;
+            margin: 40px 0 50px;
             color: #a5b4fc;
         }
         .btn {
             width: 100%;
             padding: 18px;
-            margin: 12px 0;
+            margin: 10px 0;
             border: none;
             border-radius: 16px;
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: white;
         }
@@ -45,35 +38,37 @@
         .btn-green  { background: linear-gradient(135deg, #22c55e, #15803d); }
         .btn-red    { background: linear-gradient(135deg, #ef4444, #b91c1c); }
 
-        /* Экран таблицы */
+        /* Экран Потока Новичка */
         .table-screen h2 {
             text-align: center;
-            margin: 10px 0 24px;
-            font-size: 1.6rem;
+            margin: 10px 0 20px;
+            font-size: 1.55rem;
         }
         .back-btn {
             background: #475569;
             color: white;
-            padding: 12px 24px;
+            padding: 10px 20px;
             border: none;
             border-radius: 12px;
             font-size: 1rem;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
+        /* Карточка Депозит — исправленная версия */
         .card {
             background: #1e2937;
             border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 20px;
+            padding: 16px 16px 12px;
+            margin-bottom: 16px;
         }
-        .deposit-row {
-            display: flex;
-            gap: 12px;
-            align-items: center;
+        .deposit-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #94a3b8;
+            font-size: 0.95rem;
         }
         .deposit-input {
-            flex: 1;
+            width: 100%;
             padding: 16px;
             background: #334155;
             border: 2px solid #3b82f6;
@@ -81,68 +76,65 @@
             color: white;
             font-size: 1.25rem;
             text-align: center;
-            box-sizing: border-box;
+            box-sizing: border-box;           /* важно! */
+            appearance: none;
+            -webkit-appearance: none;
         }
         .deposit-input:focus {
             border-color: #60a5fa;
+            outline: none;
         }
         .deposit-input::-webkit-outer-spin-button,
         .deposit-input::-webkit-inner-spin-button {
             -webkit-appearance: none;
             margin: 0;
         }
-        .currency-select {
-            padding: 16px 14px;
-            background: #334155;
-            border: 2px solid #3b82f6;
-            border-radius: 12px;
-            color: white;
-            font-size: 1.05rem;
-            min-width: 88px;
-        }
 
-        .deposit-label {
-            display: block;
-            margin-bottom: 8px;
-            color: #94a3b8;
-            font-size: 0.95rem;
-        }
         .note {
             font-size: 0.85rem;
             color: #64748b;
-            margin-top: 8px;
+            margin-top: 6px;
         }
         .error {
             color: #f87171;
             font-size: 0.9rem;
-            margin-top: 10px;
+            margin-top: 8px;
             text-align: center;
             display: none;
         }
 
         .info {
             background: #334155;
-            padding: 14px;
+            padding: 12px;
             border-radius: 12px;
-            margin-bottom: 20px;
-            font-size: 0.97rem;
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+            line-height: 1.4;
         }
         table {
             width: 100%;
             border-collapse: collapse;
             background: #1e2937;
-            font-size: 14px;
+            font-size: 13.8px;
             margin-top: 8px;
         }
         th, td {
             border: 1px solid #475569;
-            padding: 11px 8px;
+            padding: 10px 6px;
             text-align: center;
         }
         th { background: #334155; color: #c4d0ff; }
         .nach { color: #34d399; font-weight: bold; }
         .koshelek { color: #60a5fa; font-weight: bold; }
         .vpotoke { color: #fbbf24; font-weight: bold; }
+        .total {
+            margin-top: 20px;
+            font-size: 1.25rem;
+            text-align: center;
+            background: #1e2937;
+            padding: 14px;
+            border-radius: 12px;
+        }
     </style>
 </head>
 <body>
@@ -163,18 +155,10 @@
 
     <div class="card">
         <label class="deposit-label">Депозит</label>
-        <div class="deposit-row">
-            <input type="number" id="deposit" class="deposit-input" value="100000" 
-                   oninput="validateAndCalculate()">
-            <select id="currency" class="currency-select" onchange="validateAndCalculate()">
-                <option value="RUB">RUB</option>
-                <option value="USDT">USDT</option>
-                <option value="EUR">EURO</option>
-                <option value="CNY">CNY</option>
-            </select>
-        </div>
-        <div class="note" id="limitNote">* от 2 000 до 200 000 RUB</div>
-        <div id="depositError" class="error"></div>
+        <input type="number" id="deposit" class="deposit-input" value="100000" 
+               oninput="validateAndCalculate()">
+        <div class="note">* от 2 000 до 200 000 RUB</div>
+        <div id="depositError" class="error">⚠ Сумма должна быть от 2 000 до 200 000 RUB</div>
     </div>
 
     <div class="info">
@@ -189,24 +173,21 @@
                 <th>День</th>
                 <th class="vpotoke">В потоке</th>
                 <th class="nach">Начисление (2%)</th>
-                <th class="koshelek">Кошелёк</th>
+                <th class="koshelek">Кошелёк (RUB)</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
     </table>
+
+    <div class="total">
+        Итого в кошельке: <span id="totalKoshelek" class="koshelek">0.00</span> RUB
+    </div>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
-
-    const limits = {
-        RUB: { min: 2000,   max: 200000,  symbol: 'RUB' },
-        USDT: { min: 20,    max: 2000,    symbol: 'USDT' },
-        EUR:  { min: 20,    max: 2000,    symbol: 'EURO' },
-        CNY:  { min: 160,   max: 16000,   symbol: 'CNY' }
-    };
 
     function showScreen(screenId) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -224,28 +205,20 @@
 
     function validateAndCalculate() {
         const depositInput = document.getElementById('deposit');
-        const currencySelect = document.getElementById('currency');
         const errorDiv = document.getElementById('depositError');
-        const noteDiv = document.getElementById('limitNote');
+        let deposit = parseFloat(depositInput.value);
 
-        const currency = currencySelect.value;
-        const limit = limits[currency];
-        let deposit = parseFloat(depositInput.value) || 0;
-
-        noteDiv.textContent = `* от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
-
-        if (deposit < limit.min || deposit > limit.max) {
+        if (isNaN(deposit) || deposit < 2000 || deposit > 200000) {
             errorDiv.style.display = 'block';
-            errorDiv.textContent = `⚠ Сумма должна быть от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
             return;
         } else {
             errorDiv.style.display = 'none';
         }
 
-        calculateNovice(deposit, currency);
+        calculateNovice(deposit);
     }
 
-    function calculateNovice(deposit, currency) {
+    function calculateNovice(deposit) {
         const percent = 0.02;
         const maxDays = 180;
         let vPotoke = deposit * 1.5;
@@ -253,7 +226,7 @@
         let dayCount = 0;
 
         document.getElementById('vPotokeInfo').textContent = 
-            vPotoke.toLocaleString('ru-RU', { minimumFractionDigits: 2 }) + ' ' + currency;
+            vPotoke.toLocaleString('ru-RU', { minimumFractionDigits: 2 });
 
         let tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
@@ -287,6 +260,8 @@
             if (vPotoke < 0.01) break;
             currentDate.setDate(currentDate.getDate() + 1);
         }
+
+        document.getElementById('totalKoshelek').textContent = koshelek.toFixed(2);
     }
 
     window.onload = () => {};
