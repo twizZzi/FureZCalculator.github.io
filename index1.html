@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FureZ Calculator</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            margin: 0;
+            padding: 0;
+        }
+        .screen { display: none; min-height: 100vh; padding: 16px; }
+        .screen.active { display: block; }
+
+        /* Главный экран */
+        .main-screen h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin: 40px 0 50px;
+            color: #a5b4fc;
+        }
+        .btn {
+            width: 100%;
+            padding: 18px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+        }
+        .btn-blue   { background: linear-gradient(135deg, #3b82f6, #1e40af); }
+        .btn-yellow { background: linear-gradient(135deg, #fbbf24, #d97706); }
+        .btn-green  { background: linear-gradient(135deg, #22c55e, #15803d); }
+        .btn-red    { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+
+        /* Экран таблицы */
+        .table-screen h2 {
+            text-align: center;
+            margin: 10px 0 20px;
+            font-size: 1.55rem;
+        }
+        .back-btn {
+            background: #475569;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .card {
+            background: #1e2937;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .deposit-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .deposit-input {
+            flex: 1;
+            padding: 16px;
+            background: #334155;
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.25rem;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .deposit-input:focus {
+            border-color: #60a5fa;
+            outline: none;
+        }
+        .deposit-input::-webkit-outer-spin-button,
+        .deposit-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .currency-select {
+            padding: 16px 12px;
+            background: #334155;
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.05rem;
+            min-width: 90px;
+        }
+
+        .deposit-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+        .note {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-top: 6px;
+        }
+        .error {
+            color: #f87171;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .info {
+            background: #334155;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1e2937;
+            font-size: 13.8px;
+            margin-top: 8px;
+        }
+        th, td {
+            border: 1px solid #475569;
+            padding: 10px 6px;
+            text-align: center;
+        }
+        th { background: #334155; color: #c4d0ff; }
+        .nach { color: #34d399; font-weight: bold; }
+        .koshelek { color: #60a5fa; font-weight: bold; }
+        .vpotoke { color: #fbbf24; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<!-- Главный экран -->
+<div id="mainScreen" class="screen active main-screen">
+    <h1>FureZ<br>Calculator</h1>
+    <button class="btn btn-blue" onclick="showNoviceFlow()">Поток Новичка</button>
+    <button class="btn btn-yellow" onclick="alert('Быстрый Поток скоро будет доступен')">Быстрый Поток</button>
+    <button class="btn btn-green" onclick="alert('Растущий Поток скоро будет доступен')">Растущий Поток</button>
+    <button class="btn btn-red" onclick="alert('Стартовый Поток скоро будет доступен')">Стартовый Поток</button>
+</div>
+
+<!-- Экран Потока Новичка -->
+<div id="noviceScreen" class="screen table-screen">
+    <button class="back-btn" onclick="backToMain()">← Назад на главный экран</button>
+    <h2>Поток Новичка (ПН)</h2>
+
+    <div class="card">
+        <label class="deposit-label">Депозит</label>
+        <div class="deposit-row">
+            <input type="number" id="deposit" class="deposit-input" value="100000" 
+                   oninput="validateAndCalculate()">
+            <select id="currency" class="currency-select" onchange="validateAndCalculate()">
+                <option value="RUB">RUB</option>
+                <option value="USDT">USDT</option>
+                <option value="EUR">EURO</option>
+                <option value="CNY">CNY</option>
+            </select>
+        </div>
+        <div class="note" id="limitNote">* от 2 000 до 200 000 RUB</div>
+        <div id="depositError" class="error"></div>
+    </div>
+
+    <div class="info">
+        Начальная сумма в потоке = Депозит + 50%<br>
+        <strong id="vPotokeInfo">150 000.00</strong>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>День</th>
+                <th class="vpotoke">В потоке</th>
+                <th class="nach">Начисление (2%)</th>
+                <th class="koshelek">Кошелёк</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    const limits = {
+        RUB: { min: 2000,   max: 200000,  symbol: 'RUB' },
+        USDT: { min: 20,    max: 2000,    symbol: 'USDT' },
+        EUR:  { min: 20,    max: 2000,    symbol: 'EURO' },
+        CNY:  { min: 160,   max: 16000,   symbol: 'CNY' }
+    };
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function showNoviceFlow() {
+        showScreen('noviceScreen');
+        validateAndCalculate();
+    }
+
+    function backToMain() {
+        showScreen('mainScreen');
+    }
+
+    function validateAndCalculate() {
+        const depositInput = document.getElementById('deposit');
+        const currencySelect = document.getElementById('currency');
+        const errorDiv = document.getElementById('depositError');
+        const noteDiv = document.getElementById('limitNote');
+
+        const currency = currencySelect.value;
+        const limit = limits[currency];
+        let deposit = parseFloat(depositInput.value);
+
+        // Обновляем примечание
+        noteDiv.textContent = `* от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
+
+        if (isNaN(deposit) || deposit < limit.min || deposit > limit.max) {
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = `⚠ Сумма должна быть от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
+            return;
+        } else {
+            errorDiv.style.display = 'none';
+        }
+
+        calculateNovice(deposit, currency);
+    }
+
+    function calculateNovice(deposit, currency) {
+        const percent = 0.02;
+        const maxDays = 180;
+        let vPotoke = deposit * 1.5;
+        let koshelek = 0;
+        let dayCount = 0;
+
+        document.getElementById('vPotokeInfo').textContent = 
+            vPotoke.toLocaleString('ru-RU', { minimumFractionDigits: 2 }) + ' ' + currency;
+
+        let tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        let currentDate = new Date();
+
+        while (dayCount < maxDays) {
+            if (currentDate.getDay() === 0) {
+                currentDate.setDate(currentDate.getDate() + 1);
+                continue;
+            }
+            dayCount++;
+            let nachislenie = vPotoke * percent;
+            koshelek += nachislenie;
+            vPotoke -= nachislenie;
+
+            let dateStr = currentDate.toLocaleDateString('ru-RU', {
+                day: '2-digit', month: '2-digit', year: 'numeric'
+            });
+
+            let row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${dateStr}</td>
+                <td>${dayCount}</td>
+                <td class="vpotoke">${vPotoke.toFixed(2)}</td>
+                <td class="nach">+${nachislenie.toFixed(2)}</td>
+                <td class="koshelek">${koshelek.toFixed(2)}</td>
+            `;
+            tbody.appendChild(row);
+
+            if (vPotoke < 0.01) break;
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+    }
+
+    window.onload = () => {};
+</script>
+</body>
+</html>
