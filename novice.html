@@ -234,26 +234,46 @@
     function calculateNovice(deposit) {
         const percent = 0.02;
         const maxDays = 180;
-        let vPotoke = deposit * 1.5;
+        let initialVPotoke = deposit * 1.5; // Начальная сумма в потоке
+        let vPotoke = initialVPotoke;
         let koshelek = 0;
         let dayCount = 0;
 
         document.getElementById('vPotokeInfo').textContent = 
-            vPotoke.toLocaleString('ru-RU', { minimumFractionDigits: 2 });
+            initialVPotoke.toLocaleString('ru-RU', { minimumFractionDigits: 2 });
 
         let tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
 
+        // --- ДОБАВЛЕНИЕ СТРОКИ "ОТКРЫТИЕ" ---
+        let firstAccrual = initialVPotoke * percent; // Первое начисление
+        let openRow = document.createElement('tr');
+        openRow.style.background = "#334155"; // Выделяем цветом, как на скриншоте
+        openRow.style.fontWeight = "bold";
+        openRow.innerHTML = `
+            <td>ОТКРЫТИЕ</td>
+            <td>-</td>
+            <td class="vpotoke">${initialVPotoke.toFixed(2)}</td>
+            <td class="nach">${firstAccrual.toFixed(2)}</td>
+            <td class="koshelek">0.00</td>
+        `;
+        tbody.appendChild(openRow);
+        // ------------------------------------
+
         let currentDate = new Date();
 
         while (dayCount < maxDays) {
+            // Пропуск воскресений
             if (currentDate.getDay() === 0) {
                 currentDate.setDate(currentDate.getDate() + 1);
                 continue;
             }
+            
             dayCount++;
             let nachislenie = vPotoke * percent;
-            koshelek += nachislenie;
+            
+            // Логика: начисление из строки "ОТКРЫТИЕ" падает в кошелек на 1-й день
+            koshelek += nachislenie; 
             vPotoke -= nachislenie;
 
             let dateStr = currentDate.toLocaleDateString('ru-RU', {
@@ -265,7 +285,7 @@
                 <td>${dateStr}</td>
                 <td>${dayCount}</td>
                 <td class="vpotoke">${vPotoke.toFixed(2)}</td>
-                <td class="nach">${nachislenie.toFixed(2)}</td>
+                <td class="nach">${(vPotoke * percent).toFixed(2)}</td>
                 <td class="koshelek">${koshelek.toFixed(2)}</td>
             `;
             tbody.appendChild(row);
