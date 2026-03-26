@@ -216,7 +216,7 @@
 
         if (deposit < limit.min || deposit > limit.max) {
             errorDiv.style.display = 'block';
-            errorDiv.textContent = `⚠ Сумма должна быть от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
+            errorDiv.textContent = `⚠ Депозит от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
             return;
         } else {
             errorDiv.style.display = 'none';
