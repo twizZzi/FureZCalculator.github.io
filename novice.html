@@ -7,9 +7,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --primary: #3b82f6;
             --card-bg: #1e2937;
-            --input-bg: #334155;
         }
 
         body {
@@ -40,11 +38,13 @@
             width: 100%;
         }
 
-        .card {
+        .card, .info {
             background: var(--card-bg);
             border-radius: 18px;
             padding: 20px;
             margin-bottom: 20px;
+            width: 100%;                    /* выравниваем по ширине таблицы */
+            box-sizing: border-box;
         }
 
         .deposit-label {
@@ -63,13 +63,12 @@
         .deposit-input {
             flex: 1;
             padding: 16px;
-            background: var(--input-bg);
+            background: #334155;
             border: 2px solid #3b82f6;
             border-radius: 14px;
             color: white;
             font-size: 1.25rem;
             text-align: center;
-            box-sizing: border-box;
         }
 
         .deposit-input:focus {
@@ -78,20 +77,19 @@
 
         .currency-select {
             padding: 16px 12px;
-            background: var(--input-bg);
+            background: #334155;
             border: 2px solid #3b82f6;
             border-radius: 14px;
             color: white;
             font-size: 1.05rem;
-            min-width: 88px;           /* уменьшил, чтобы точно влезало */
-            max-width: 100px;
+            min-width: 88px;
         }
 
         .note {
             font-size: 0.87rem;
             color: #64748b;
             margin-top: 10px;
-            text-align: left;           /* выровнял по левому краю как раньше */
+            text-align: left;
         }
 
         .error {
@@ -103,12 +101,8 @@
         }
 
         .info {
-            background: var(--card-bg);
-            padding: 16px;
-            border-radius: 14px;
-            margin-bottom: 20px;
-            font-size: 1rem;
-            text-align: center;
+            text-align: left;               /* выравнивание по левому краю */
+            line-height: 1.6;
         }
 
         table {
@@ -133,7 +127,6 @@
             font-weight: 600;
         }
 
-        /* Чередующиеся строки */
         tbody tr:nth-child(even) {
             background-color: #252f3f;
         }
