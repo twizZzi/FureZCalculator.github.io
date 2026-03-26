@@ -78,7 +78,7 @@
             border-radius: 14px;
             color: white;
             font-size: 1.05rem;
-            min-width: 90px;
+            min-width: 88px;
         }
 
         .note {
@@ -95,7 +95,7 @@
             display: none;
         }
 
-        /* Блок "Начальная сумма" - как было раньше */
+        /* Блок "Начальная сумма" — как ты просил (в две строки, по левому краю) */
         .info {
             text-align: left;
             line-height: 1.6;
@@ -143,6 +143,7 @@
     <button class="back-btn" onclick="window.location.href='index.html'">← Назад на главный экран</button>
     <h2>Поток Новичка (ПН)</h2>
 
+    <!-- Блок Депозит -->
     <div class="card">
         <label class="deposit-label">Депозит</label>
         <div class="deposit-row">
@@ -159,11 +160,13 @@
         <div id="depositError" class="error"></div>
     </div>
 
+    <!-- Блок Начальная сумма (в две строки, как раньше) -->
     <div class="info">
         Начальная сумма в потоке = Депозит + 50%<br>
         <strong id="vPotokeInfo">150 000.00</strong>
     </div>
 
+    <!-- Таблица -->
     <table>
         <thead>
             <tr>
