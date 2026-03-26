@@ -12,60 +12,60 @@
             color: #e2e8f0;
             margin: 0;
             padding: 16px;
-            max-width: 480px;
+            max-width: 430px;           /* как ты просил */
             margin: 0 auto;
         }
 
         h2 {
             text-align: center;
-            margin: 10px 0 24px;
-            font-size: 1.65rem;
+            margin: 12px 0 28px;
+            font-size: 1.68rem;
             color: #c4d0ff;
         }
 
         .back-btn {
             background: #475569;
             color: white;
-            padding: 12px 20px;
+            padding: 13px 24px;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             font-size: 1rem;
-            margin: 0 auto 20px;
+            margin: 0 auto 24px;
             display: block;
             width: fit-content;
-            min-width: 220px;
+            min-width: 210px;
         }
 
         .card, .info {
             background: #1e2937;
             border-radius: 18px;
-            margin-bottom: 20px;
             padding: 20px;
-            width: 115%;
+            margin-bottom: 22px;
+            width: 100%;
             box-sizing: border-box;
         }
 
         .deposit-label {
             display: block;
-            margin-bottom: 11px;
+            margin-bottom: 10px;
             color: #94a3b8;
-            font-size: 0.98rem;
+            font-size: 0.97rem;
         }
 
         .deposit-row {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
         }
 
         .deposit-input {
             flex: 1;
+            padding: 17px 16px;
             background: #334155;
-            padding: 16px;
             border: 2px solid #3b82f6;
             border-radius: 14px;
             color: white;
-            font-size: 1.25rem;
+            font-size: 1.26rem;
             text-align: center;
         }
 
@@ -74,24 +74,24 @@
         }
 
         .currency-select {
-            padding: 16px 12px;
+            padding: 17px 14px;
             background: #334155;
             border: 2px solid #3b82f6;
             border-radius: 14px;
             color: white;
             font-size: 1.05rem;
-            min-width: 90px;
+            min-width: 92px;
         }
 
         .note {
-            font-size: 0.87rem;
+            font-size: 0.86rem;
             color: #64748b;
             margin-top: 10px;
         }
 
         .error {
             color: #f87171;
-            font-size: 0.92rem;
+            font-size: 0.9rem;
             margin-top: 8px;
             text-align: center;
             display: none;
@@ -99,23 +99,23 @@
 
         .info {
             text-align: left;
-            line-height: 1.6;
+            line-height: 1.65;
+            font-size: 1.02rem;
         }
 
-        /* Таблица фиксированной ширины */
         table {
-            width: 115%;
+            width: 100%;
             border-collapse: collapse;
             background: #1e2937;
-            font-size: 14.2px;
-            border-radius: 12px;
+            font-size: 14.1px;
+            border-radius: 14px;
             overflow: hidden;
             margin-top: 8px;
-            table-layout: fixed;           /* важно для стабильной ширины */
+            table-layout: fixed;
         }
 
         th, td {
-            padding: 12px 8px;
+            padding: 13px 8px;
             text-align: center;
             border-bottom: 1px solid #475569;
         }
@@ -143,7 +143,7 @@
 </head>
 <body>
 
-    <button class="back-btn" onclick="window.location.href='index.html'">Назад на главный экран</button>
+    <button class="back-btn" onclick="window.location.href='index.html'">← Назад на главный экран</button>
     <h2>Поток Новичка (ПН)</h2>
 
     <!-- Блок Депозит -->
@@ -176,7 +176,7 @@
                 <th>Дата</th>
                 <th>День</th>
                 <th class="vpotoke">В потоке</th>
-                <th class="nach">Начисление</th>
+                <th class="nach">Начисление (2%)</th>
                 <th class="koshelek">Кошелёк</th>
             </tr>
         </thead>
