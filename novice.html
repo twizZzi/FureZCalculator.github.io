@@ -30,8 +30,10 @@
             border: none;
             border-radius: 12px;
             font-size: 1rem;
-            margin-bottom: 20px;
-            width: 100%;
+            margin: 0 auto 20px;
+            display: block;
+            width: fit-content;
+            min-width: 220px;
         }
 
         .card, .info {
@@ -39,7 +41,7 @@
             border-radius: 18px;
             padding: 20px;
             margin-bottom: 20px;
-            width: 115%;
+            width: 100%;
             box-sizing: border-box;
         }
 
@@ -65,7 +67,6 @@
             color: white;
             font-size: 1.25rem;
             text-align: center;
-            width: 250px;
         }
 
         .deposit-input:focus {
@@ -79,7 +80,7 @@
             border-radius: 14px;
             color: white;
             font-size: 1.05rem;
-            min-width: 88px;
+            min-width: 90px;
         }
 
         .note {
@@ -96,12 +97,12 @@
             display: none;
         }
 
-        /* Блок "Начальная сумма" — как ты просил (в две строки, по левому краю) */
         .info {
             text-align: left;
             line-height: 1.6;
         }
 
+        /* Таблица фиксированной ширины */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -110,6 +111,7 @@
             border-radius: 12px;
             overflow: hidden;
             margin-top: 8px;
+            table-layout: fixed;           /* важно для стабильной ширины */
         }
 
         th, td {
@@ -161,7 +163,7 @@
         <div id="depositError" class="error"></div>
     </div>
 
-    <!-- Блок Начальная сумма (в две строки, как раньше) -->
+    <!-- Блок Начальная сумма -->
     <div class="info">
         Начальная сумма в потоке = Депозит + 50%<br>
         <strong id="vPotokeInfo">150 000.00</strong>
