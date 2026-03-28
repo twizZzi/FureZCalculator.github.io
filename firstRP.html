@@ -114,7 +114,7 @@
                 <option value="USDT">USDT</option>
             </select>
         </div>
-        <div class="note" id="limitNote">От 1 000 до ∞</div>
+        <div class="note" id="limitNote">* от 1 000 до ∞</div>
         <div id="error" class="error"></div>
     </div>
 
@@ -130,7 +130,7 @@
                 <th style="width: 8%;">Дни</th>
                 <th style="width: 14%;">%</th>
                 <th style="width: 20%;">В потоке</th>
-                <th style="width: 20%;">Начисл.</th>
+                <th style="width: 20%;">Начисление</th>
                 <th style="width: 20%;">Кошелек</th>
             </tr>
         </thead>
@@ -166,10 +166,9 @@
         // Очистка таблицы при каждой перерасчёте
         tbody.innerHTML = '';
 
-        // Валидация и динамическая ошибка (меняется при смене валюты)
         if (deposit < limit.min) {
             error.style.display = 'block';
-            error.textContent = `⚠ Минимум ${limit.min.toLocaleString('ru-RU')}${limit.symbol}`;
+            error.textContent = `⚠ Минимум ${limit.min.toLocaleString('ru-RU')} ${limit.symbol}`;
             return;
         } else {
             error.style.display = 'none';
