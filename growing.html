@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Растущий Поток - FureZ Calculator</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            margin: 0;
+            padding: 16px;
+            max-width: 430px;
+            margin: 0 auto;
+        }
+
+        /* Шапка с кнопкой назад и заголовком */
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 20px 0 50px;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #334155;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .back-btn:active {
+            background: #475569;
+            transform: translateY(-50%) scale(0.9);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin: 0;
+            color: #a5b4fc;
+        }
+
+        /* Стили кнопок */
+        .btn {
+            width: 100%;
+            padding: 18px;
+            margin: 12px 0;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn:active {
+            opacity: 0.8;
+        }
+
+        /* Цветовые градиенты */
+        .btn-green  { background: linear-gradient(135deg, #24a484, #125c4a); }
+        .btn-blue   { background: linear-gradient(135deg, #1a84e4, #0d467a); }
+        .btn-yellow { background: linear-gradient(135deg, #f09024, #b84e16); }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <a href="index.html" class="back-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </a>
+        <h1>Растущий<br>Поток</h1>
+    </div>
+    
+    <button class="btn btn-green">Первое открытие</button>
+    <button class="btn btn-blue">День реинвеста</button>
+    <button class="btn btn-yellow">Текущий поток</button>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+</script>
+</body>
+</html>
