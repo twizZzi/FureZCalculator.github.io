@@ -108,13 +108,13 @@
     <div class="card">
         <label class="deposit-label">Сумма взноса</label>
         <div class="deposit-row">
-            <input type="number" id="deposit" class="deposit-input" value="10000" oninput="validateAndCalculate()">
-            <select id="currency" class="currency-select" onchange="validateAndCalculate()">
+            <input type="number" id="deposit" class="deposit-input" value="10000" oninput="calculateRP()">
+            <select id="currency" class="currency-select" onchange="calculateRP()">
                 <option value="RUB">RUB</option>
                 <option value="USDT">USDT</option>
             </select>
         </div>
-        <div class="note" id="limitNote">* от 1 000 до 1 000 000 RUB</div>
+        <div class="note" id="limitNote">От 1 000 до ∞</div>
         <div id="error" class="error"></div>
     </div>
 
@@ -139,8 +139,8 @@
 
 <script>
     const limits = {
-        RUB: { min: 1000,  max: 1000000, symbol: '₽' },
-        USDT: { min: 10,   max: 10000,   symbol: '₮' }
+        RUB: { min: 1000, symbol: '₽' },
+        USDT: { min: 1000, symbol: '₮' }
     };
 
     function getMultiplier(sum) {
@@ -154,37 +154,26 @@
         return 0;
     }
 
-    function validateAndCalculate() {
-        const depositInput = document.getElementById('deposit');
-        const currencySelect = document.getElementById('currency');
-        const errorDiv = document.getElementById('error');
-        const noteDiv = document.getElementById('limitNote');
-
-        const currency = currencySelect.value;
+    function calculateRP() {
+        const deposit = parseFloat(document.getElementById('deposit').value) || 0;
+        const currency = document.getElementById('currency').value;
         const limit = limits[currency];
-        let deposit = parseFloat(depositInput.value) || 0;
-
-        // Обновляем подсказку
-        noteDiv.textContent = `* от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
-
-        if (deposit < limit.min || deposit > limit.max) {
-            errorDiv.style.display = 'block';
-            errorDiv.textContent = `⚠ Сумма должна быть от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
-            document.getElementById('tableBody').innerHTML = '';
-            return;
-        } else {
-            errorDiv.style.display = 'none';
-        }
-
-        calculateRP(deposit);
-    }
-
-    function calculateRP(deposit) {
+        const error = document.getElementById('error');
         const tbody = document.getElementById('tableBody');
         const multInfo = document.getElementById('multiplierInfo');
         const totalInfo = document.getElementById('totalVpotoke');
         
+        // Очистка таблицы при каждой перерасчёте
         tbody.innerHTML = '';
+
+        // Валидация и динамическая ошибка (меняется при смене валюты)
+        if (deposit < limit.min) {
+            error.style.display = 'block';
+            error.textContent = `⚠ Минимум ${limit.min.toLocaleString('ru-RU')}${limit.symbol}`;
+            return;
+        } else {
+            error.style.display = 'none';
+        }
 
         const mult = getMultiplier(deposit);
         if (mult === 0) return;
@@ -202,17 +191,18 @@
                 currentDate.setDate(currentDate.getDate() + 1);
             }
 
+            // Формула процента: 0.1 + (День - 1) * 0.0033
             let currentPercent = 0.1 + (day - 1) * 0.0033;
             let nachislenie = vPotoke * (currentPercent / 100);
             
             vPotoke -= nachislenie;
             koshelek += nachislenie;
 
-            // Дата с годом (2 последние цифры)
-            let dateStr = currentDate.toLocaleDateString('ru-RU', {
+            // Дата с годом (последние 2 цифры)
+            let dateStr = currentDate.toLocaleDateString('ru-RU', { 
                 day: '2-digit', 
                 month: '2-digit', 
-                year: '2-digit'
+                year: '2-digit' 
             });
 
             let row = document.createElement('tr');
@@ -231,7 +221,7 @@
         }
     }
 
-    window.onload = validateAndCalculate;
+    window.onload = calculateRP;
 </script>
 </body>
 </html>
