@@ -59,6 +59,12 @@
             text-align: center;
         }
 
+        .note {
+            font-size: 0.86rem;
+            color: #64748b;
+            margin-top: 10px;
+        }
+
         .info {
             background: #1e2937; border-radius: 18px; padding: 15px;
             margin-bottom: 22px; text-align: center; line-height: 1.4;
@@ -78,7 +84,13 @@
         .nach { color: #34d399; font-weight: bold; }
         .koshelek { color: #60a5fa; font-weight: bold; }
 
-        .error { color: #f87171; font-size: 0.9rem; margin-top: 8px; text-align: center; display: none; }
+        .error { 
+            color: #f87171; 
+            font-size: 0.9rem; 
+            margin-top: 8px; 
+            text-align: center; 
+            display: none; 
+        }
     </style>
 </head>
 <body>
@@ -96,13 +108,14 @@
     <div class="card">
         <label class="deposit-label">Сумма взноса</label>
         <div class="deposit-row">
-            <input type="number" id="deposit" class="deposit-input" value="10000" oninput="calculateRP()">
-            <select id="currency" class="currency-select" onchange="calculateRP()">
+            <input type="number" id="deposit" class="deposit-input" value="10000" oninput="validateAndCalculate()">
+            <select id="currency" class="currency-select" onchange="validateAndCalculate()">
                 <option value="RUB">RUB</option>
                 <option value="USDT">USDT</option>
             </select>
         </div>
-        <div id="error" class="error">⚠ Минимум 1 000₽</div>
+        <div class="note" id="limitNote">* от 1 000 до 1 000 000 RUB</div>
+        <div id="error" class="error"></div>
     </div>
 
     <div class="info">
@@ -125,6 +138,11 @@
     </table>
 
 <script>
+    const limits = {
+        RUB: { min: 1000,  max: 1000000, symbol: '₽' },
+        USDT: { min: 10,   max: 10000,   symbol: '₮' }
+    };
+
     function getMultiplier(sum) {
         if (sum >= 1000000) return 3;
         if (sum >= 500000)  return 2.75;
@@ -136,21 +154,40 @@
         return 0;
     }
 
-    function calculateRP() {
-        const deposit = parseFloat(document.getElementById('deposit').value) || 0;
+    function validateAndCalculate() {
+        const depositInput = document.getElementById('deposit');
+        const currencySelect = document.getElementById('currency');
+        const errorDiv = document.getElementById('error');
+        const noteDiv = document.getElementById('limitNote');
+
+        const currency = currencySelect.value;
+        const limit = limits[currency];
+        let deposit = parseFloat(depositInput.value) || 0;
+
+        // Обновляем подсказку
+        noteDiv.textContent = `* от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
+
+        if (deposit < limit.min || deposit > limit.max) {
+            errorDiv.style.display = 'block';
+            errorDiv.textContent = `⚠ Сумма должна быть от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
+            document.getElementById('tableBody').innerHTML = '';
+            return;
+        } else {
+            errorDiv.style.display = 'none';
+        }
+
+        calculateRP(deposit);
+    }
+
+    function calculateRP(deposit) {
         const tbody = document.getElementById('tableBody');
-        const error = document.getElementById('error');
         const multInfo = document.getElementById('multiplierInfo');
         const totalInfo = document.getElementById('totalVpotoke');
         
         tbody.innerHTML = '';
-        
+
         const mult = getMultiplier(deposit);
-        if (mult === 0) {
-            error.style.display = 'block';
-            return;
-        }
-        error.style.display = 'none';
+        if (mult === 0) return;
 
         let vPotoke = deposit * mult;
         let koshelek = 0;
@@ -165,14 +202,18 @@
                 currentDate.setDate(currentDate.getDate() + 1);
             }
 
-            // Формула процента: 0.1 + (День - 1) * 0.0033
             let currentPercent = 0.1 + (day - 1) * 0.0033;
             let nachislenie = vPotoke * (currentPercent / 100);
             
             vPotoke -= nachislenie;
             koshelek += nachislenie;
 
-            let dateStr = currentDate.toLocaleDateString('ru-RU', {day: '2-digit', month: '2-digit'});
+            // Дата с годом (2 последние цифры)
+            let dateStr = currentDate.toLocaleDateString('ru-RU', {
+                day: '2-digit', 
+                month: '2-digit', 
+                year: '2-digit'
+            });
 
             let row = document.createElement('tr');
             row.innerHTML = `
@@ -190,7 +231,7 @@
         }
     }
 
-    window.onload = calculateRP;
+    window.onload = validateAndCalculate;
 </script>
 </body>
 </html>
