@@ -45,13 +45,18 @@
         .deposit-input {
             flex: 1; padding: 16px 14px; background: #334155;
             border: 2px solid #24a484; border-radius: 14px;
-            color: white; font-size: 1.1rem; text-align: center;
+            color: white; font-size: 1.1rem; text-align: center; width: 184px;
         }
 
         .currency-select {
-            flex: 0.4; padding: 16px 5px; background: #334155;
-            border: 2px solid #24a484; border-radius: 14px;
-            color: white; font-size: 1.1rem; text-align: center;
+            flex: 1;
+            padding: 16px 10px;
+            background: #334155;
+            border: 2px solid #3b82f6;
+            border-radius: 14px;
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
         }
 
         .info {
@@ -73,7 +78,7 @@
         .nach { color: #34d399; font-weight: bold; }
         .koshelek { color: #60a5fa; font-weight: bold; }
 
-        .error { color: #f87171; font-size: 0.9rem; margin-top: 8px; text-align: center; display: none; }
+        .error { font-size: 0.86rem; color: #64748b; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -97,7 +102,7 @@
                 <option value="USDT">USDT</option>
             </select>
         </div>
-        <div id="error" class="error">Минимум 1 000 RUB</div>
+        <div id="error" class="error">⚠ Минимум 1 000₽</div>
     </div>
 
     <div class="info">
@@ -138,7 +143,7 @@
         const multInfo = document.getElementById('multiplierInfo');
         const totalInfo = document.getElementById('totalVpotoke');
         
-        tbody.innerHTML = '';
+        tbody.innerHTML = '';vb
         
         const mult = getMultiplier(deposit);
         if (mult === 0) {
