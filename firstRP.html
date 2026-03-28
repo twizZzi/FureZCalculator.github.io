@@ -45,7 +45,7 @@
         .deposit-input {
             flex: 1; padding: 16px 14px; background: #334155;
             border: 2px solid #24a484; border-radius: 14px;
-            color: white; font-size: 1.1rem; text-align: center; width: 184px;
+            color: white; font-size: 1.1rem; text-align: center;
         }
 
         .currency-select {
@@ -78,7 +78,6 @@
         th, td { padding: 8px 2px; text-align: center; border-bottom: 1px solid #475569; }
         th { background: #334155; color: #c4d0ff; }
 
-        /* Цвета колонок */
         .pct { color: #a5b4fc; }
         .vpotoke { color: #fbbf24; }
         .nach { color: #34d399; font-weight: bold; }
@@ -114,7 +113,7 @@
                 <option value="USDT">USDT</option>
             </select>
         </div>
-        <div class="note" id="limitNote">* от 1 000 до ∞</div>
+        <div class="note" id="limitNote">От 1 000 до ∞</div>
         <div id="error" class="error"></div>
     </div>
 
@@ -139,65 +138,89 @@
 
 <script>
     const limits = {
-        RUB: { min: 1000, symbol: '₽' },
+        RUB:  { min: 1000, symbol: '₽' },
         USDT: { min: 1000, symbol: '₮' }
     };
 
-    function getMultiplier(sum) {
-        if (sum >= 1000000) return 3;
-        if (sum >= 500000)  return 2.75;
-        if (sum >= 100000)  return 2.5;
-        if (sum >= 50000)   return 2.25;
-        if (sum >= 10000)   return 2;
-        if (sum >= 5000)    return 1.75;
-        if (sum >= 1000)    return 1.5;
-        return 0;
+    function getMultiplier(sum, currency) {
+        if (currency === "USDT") {
+            // Новая таблица множителей для USDT
+            if (sum >= 1000000) return 3.8;
+            if (sum >= 500000)  return 3.7;
+            if (sum >= 250000)  return 3.6;
+            if (sum >= 100000)  return 3.5;
+            if (sum >= 50000)   return 3.3;
+            if (sum >= 25000)   return 3.1;
+            if (sum >= 10000)   return 3.0;
+            if (sum >= 5000)    return 2.8;
+            if (sum >= 2500)    return 2.6;
+            if (sum >= 1000)    return 2.5;
+            if (sum >= 500)     return 2.4;
+            if (sum >= 100)     return 2.3;
+            return 0;
+        } else {
+            // Таблица для RUB
+            if (sum >= 1000000) return 3;
+            if (sum >= 500000)  return 2.75;
+            if (sum >= 100000)  return 2.5;
+            if (sum >= 50000)   return 2.25;
+            if (sum >= 10000)   return 2;
+            if (sum >= 5000)    return 1.75;
+            if (sum >= 1000)    return 1.5;
+            return 0;
+        }
     }
 
     function calculateRP() {
-        const deposit = parseFloat(document.getElementById('deposit').value) || 0;
+        const depositInput = parseFloat(document.getElementById('deposit').value) || 0;
         const currency = document.getElementById('currency').value;
         const limit = limits[currency];
-        const error = document.getElementById('error');
+        
+        const errorEl = document.getElementById('error');
+        const noteEl = document.getElementById('limitNote');
         const tbody = document.getElementById('tableBody');
         const multInfo = document.getElementById('multiplierInfo');
         const totalInfo = document.getElementById('totalVpotoke');
-        
-        // Очистка таблицы при каждой перерасчёте
+
         tbody.innerHTML = '';
 
-        if (deposit < limit.min) {
-            error.style.display = 'block';
-            error.textContent = `⚠ Минимум ${limit.min.toLocaleString('ru-RU')} ${limit.symbol}`;
+        // Обновляем подсказку с символом валюты
+        noteEl.textContent = `От 1 000 до ∞ ${limit.symbol}`;
+
+        // Проверка минимума
+        if (depositInput < limit.min) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = `⚠ Минимум ${limit.min.toLocaleString('ru-RU')} ${limit.symbol}`;
             return;
         } else {
-            error.style.display = 'none';
+            errorEl.style.display = 'none';
         }
 
-        const mult = getMultiplier(deposit);
-        if (mult === 0) return;
+        const mult = getMultiplier(depositInput, currency);
+        if (mult === 0) {
+            errorEl.style.display = 'block';
+            errorEl.textContent = `⚠ Сумма слишком мала`;
+            return;
+        }
 
-        let vPotoke = deposit * mult;
+        let vPotoke = depositInput * mult;
         let koshelek = 0;
         let currentDate = new Date();
-        
+
         multInfo.textContent = `x${mult}`;
-        totalInfo.textContent = vPotoke.toLocaleString('ru-RU', {minimumFractionDigits: 2});
+        totalInfo.textContent = vPotoke.toLocaleString('ru-RU', { minimumFractionDigits: 2 });
 
         for (let day = 1; day <= 180; day++) {
-            // Пропуск воскресений
             while (currentDate.getDay() === 0) {
                 currentDate.setDate(currentDate.getDate() + 1);
             }
 
-            // Формула процента: 0.1 + (День - 1) * 0.0033
             let currentPercent = 0.1 + (day - 1) * 0.0033;
             let nachislenie = vPotoke * (currentPercent / 100);
-            
+
             vPotoke -= nachislenie;
             koshelek += nachislenie;
 
-            // Дата с годом (последние 2 цифры)
             let dateStr = currentDate.toLocaleDateString('ru-RU', { 
                 day: '2-digit', 
                 month: '2-digit', 
