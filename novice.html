@@ -22,20 +22,22 @@
         const limit = limits[currency];
         let deposit = parseFloat(depositInput.value) || 0;
 
+        // Обновляем подсказку с лимитами
         noteDiv.textContent = `* от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
 
-        // Скрываем таблицу и инфо при некорректном депозите
-        if (deposit < limit.min || deposit > limit.max || deposit === 0) {
+        // Если сумма некорректная — скрываем инфо и таблицу
+        if (deposit < limit.min || deposit > limit.max || isNaN(deposit) || deposit === 0) {
             errorDiv.style.display = 'block';
             errorDiv.textContent = `⚠ Сумма должна быть от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
             infoDiv.style.display = 'none';
             table.style.display = 'none';
             return;
-        } else {
-            errorDiv.style.display = 'none';
-            infoDiv.style.display = 'block';
-            table.style.display = 'table';
-        }
+        } 
+
+        // Если всё хорошо — показываем и считаем
+        errorDiv.style.display = 'none';
+        infoDiv.style.display = 'block';
+        table.style.display = 'table';
 
         calculateNovice(deposit);
     }
@@ -81,7 +83,9 @@
             vPotoke -= nachislenie;
 
             let dateStr = currentDate.toLocaleDateString('ru-RU', {
-                day: '2-digit', month: '2-digit', year: 'numeric'
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric'
             });
 
             let row = document.createElement('tr');
@@ -99,10 +103,10 @@
         }
     }
 
-    // Изначально скрываем таблицу и инфо
+    // При загрузке страницы сразу скрываем таблицу и инфо
     window.onload = () => {
         document.querySelector('.info').style.display = 'none';
         document.querySelector('table').style.display = 'none';
-        validateAndCalculate();
+        validateAndCalculate();   // первый расчёт (если значение по умолчанию валидно)
     };
 </script>
