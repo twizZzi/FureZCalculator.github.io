@@ -133,7 +133,7 @@
         width: 100%;
         border-collapse: collapse;
         background: #1e2937;
-        font-size: 11.5px;
+        font-size: 11.8px;
         border-radius: 14px;
         overflow: hidden;
         margin-top: 8px;
@@ -141,10 +141,9 @@
     }
 
     th, td {
-        padding: 10px 2px;
+        padding: 11px 4px;
         text-align: center;
         border-bottom: 1px solid #475569;
-        word-wrap: break-word;
     }
 
     th {
@@ -153,11 +152,10 @@
         font-weight: 600;
     }
 
-    th:nth-child(1) { width: 22%; }
-    th:nth-child(2) { width: 12%; }
-    th:nth-child(3) { width: 22%; }
-    th:nth-child(4) { width: 22%; }
-    th:nth-child(5) { width: 22%; }
+    th:nth-child(1) { width: 28%; } /* Дата */
+    th:nth-child(2) { width: 14%; } /* День */
+    th:nth-child(3) { width: 29%; } /* В потоке */
+    th:nth-child(4) { width: 29%; } /* Начисление */
 
     tbody tr:nth-child(even) {
         background-color: #252f3f;
@@ -169,7 +167,6 @@
     }
 
     .nach { color: #34d399; font-weight: bold; }
-    .koshelek { color: #60a5fa; font-weight: bold; }
     .vpotoke { color: #fbbf24; font-weight: bold; }
 </style>
 </head>
@@ -202,7 +199,7 @@
     </div>
 
     <div class="info">
-        Сумма в потоке при открытии = Депозит + 50%<br>
+        Сумма в потоке = Депозит + 50%<br>
         <strong id="vPotokeInfo">150 000.00</strong>
     </div>
 
@@ -213,7 +210,6 @@
                 <th>День</th>
                 <th class="vpotoke">В потоке</th>
                 <th class="nach">Начисление</th>
-                <th class="koshelek">Кошелек</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -251,24 +247,21 @@
         if (!isValid) {
             errorDiv.style.display = 'block';
             errorDiv.textContent = `⚠ Сумма должна быть от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
-            infoDiv.style.display = 'block';
             vPotokeInfo.textContent = '';
             table.style.display = 'none';
             return;
         } 
 
         errorDiv.style.display = 'none';
-        infoDiv.style.display = 'block';
         table.style.display = 'table';
 
         calculateReinvest(deposit);
     }
 
     function calculateReinvest(deposit) {
-        const percent = 0.02;           // 2% в день
+        const percent = 0.02;           // 2% ежедневно
         const maxDays = 180;
         let vPotoke = deposit * 1.5;    // начальная сумма в потоке
-        let koshelek = 0;
         let dayCount = 0;
 
         document.getElementById('vPotokeInfo').textContent = 
@@ -277,8 +270,10 @@
         let tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
 
-        // === Первая строка — ОТКРЫТИЕ (как в novice.html) ===
+        // === Строка ОТКРЫТИЕ ===
+        let currentDate = new Date();
         let firstAccrual = vPotoke * percent;
+
         let openRow = document.createElement('tr');
         openRow.classList.add('opening-row');
         openRow.innerHTML = `
@@ -286,30 +281,24 @@
             <td>-</td>
             <td class="vpotoke">${vPotoke.toFixed(2)}</td>
             <td class="nach">${firstAccrual.toFixed(2)}</td>
-            <td class="koshelek">0.00</td>
         `;
         tbody.appendChild(openRow);
 
-        let currentDate = new Date();
-
+        // === Основной цикл расчёта реинвестов ===
         while (dayCount < maxDays) {
-            if (currentDate.getDay() === 0) { // пропускаем воскресенье
+            if (currentDate.getDay() === 0) { // пропуск воскресенья
                 currentDate.setDate(currentDate.getDate() + 1);
                 continue;
             }
 
             dayCount++;
 
-            // === Логика реинвеста ===
-            let previousVPotoke = vPotoke;
-            let nachislenie = previousVPotoke * percent;           // Начисление текущего дня
+            // Начисление за текущий день
+            let nachislenie = vPotoke * percent;
 
-            // Реинвест: 50% от начисления добавляется обратно в поток
-            let reinvestAmount = nachislenie * 0.5;
-            vPotoke = previousVPotoke + reinvestAmount;            // Новый "В потоке"
-
-            // На кошелёк уходит только 50% от начисления
-            koshelek += (nachislenie * 0.5);
+            // Реинвест 50% от начисления обратно в поток
+            let reinvest = nachislenie * 0.5;
+            vPotoke = vPotoke + reinvest;   // увеличиваем сумму в потоке
 
             let dateStr = currentDate.toLocaleDateString('ru-RU', {
                 day: '2-digit', 
@@ -323,7 +312,6 @@
                 <td>${dayCount}</td>
                 <td class="vpotoke">${vPotoke.toFixed(2)}</td>
                 <td class="nach">${nachislenie.toFixed(2)}</td>
-                <td class="koshelek">${koshelek.toFixed(2)}</td>
             `;
             tbody.appendChild(row);
 
@@ -333,7 +321,6 @@
         }
     }
 
-    // Инициализация
     window.onload = () => {
         document.querySelector('table').style.display = 'none';
         validateAndCalculate();
