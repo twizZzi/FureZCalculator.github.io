@@ -78,7 +78,6 @@
         th, td { padding: 8px 2px; text-align: center; border-bottom: 1px solid #475569; }
         th { background: #334155; color: #c4d0ff; }
 
-        /* Цвета колонок */
         .pct { color: #a5b4fc; }
         .vpotoke { color: #fbbf24; }
         .nach { color: #34d399; font-weight: bold; }
@@ -182,7 +181,7 @@
     function calculateRP() {
         const depositInput = document.getElementById('deposit');
         const currencySelect = document.getElementById('currency');
-        const deposit = parseFloat(depositInput.value) || 0;
+        let deposit = parseFloat(depositInput.value) || 0;
         const currency = currencySelect.value;
         const limit = limits[currency];
         
@@ -199,13 +198,19 @@
         if (deposit < limit.min) {
             error.style.display = 'block';
             error.textContent = `⚠ Минимум ${limit.min.toLocaleString('ru-RU')} ${limit.symbol}`;
+            multInfo.textContent = '+100%';
+            totalInfo.textContent = '0.00';
             return;
         } else {
             error.style.display = 'none';
         }
 
         const mult = getMultiplier(currency, deposit);
-        if (mult === 0) return;
+        if (mult === 0) {
+            error.style.display = 'block';
+            error.textContent = 'Сумма слишком мала для расчёта';
+            return;
+        }
 
         let vPotoke = deposit * mult;
         let koshelek = 0;
