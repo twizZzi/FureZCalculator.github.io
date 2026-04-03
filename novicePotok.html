@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Поток Новичка - FureZ Calculator</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            margin: 0;
+            padding: 16px;
+            max-width: 430px;
+            margin: 0 auto;
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 10px 0 25px;
+        }
+        .back-btn {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #334155;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        h2 {
+            margin: 0;
+            font-size: 1.75rem;
+            color: #c4d0ff;
+            text-align: center;
+        }
+        .btn {
+            width: 100%;
+            padding: 18px;
+            margin: 14px 0;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.18rem;
+            font-weight: 600;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .btn-blue   { background: linear-gradient(135deg, #3b82f6, #1e40af); }
+        .btn-green  { background: linear-gradient(135deg, #24a484, #1a6b5a); }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <a href="index.html" class="back-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </a>
+        <h2>Поток Новичка</h2>
+    </div>
+
+    <button class="btn btn-blue" onclick="window.location.href='novice.html'">
+        Первое открытие
+    </button>
+    
+    <button class="btn btn-green" onclick="window.location.href='#'">
+        Расчет реинвестов
+    </button>
+
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+</script>
+</body>
+</html>
