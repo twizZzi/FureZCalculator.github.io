@@ -197,7 +197,7 @@
 
         if (deposit < limit.min) {
             error.style.display = 'block';
-            error.textContent = `⚠ Минимум ${limit.min.toLocaleString('ru-RU')} ${limit.symbol}`;
+            error.textContent = `⚠ Сумма должна быть от ${limit.min.toLocaleString('ru-RU')} ${limit.symbol}`;
             multInfo.textContent = '+100%';
             totalInfo.textContent = '0.00';
             return;
@@ -208,7 +208,7 @@
         const mult = getMultiplier(currency, deposit);
         if (mult === 0) {
             error.style.display = 'block';
-            error.textContent = 'Сумма слишком мала для расчёта';
+            error.textContent = 'Сумма слишком мала для расчета';
             return;
         }
 
