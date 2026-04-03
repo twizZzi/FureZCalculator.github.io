@@ -98,7 +98,7 @@
         color: white;
         font-size: 1.1rem;
         text-align: center;
-        width: 184px;
+	width: 184px;
     }
 
     .deposit-input:focus {
@@ -260,10 +260,9 @@
     }
 
     function calculateReinvest(deposit) {
-        const percent = 0.02;           // 2% ежедневно
+        const percent = 0.02;
         const maxDays = 180;
-        let vPotoke = deposit * 1.5;    // начальная сумма в потоке
-        let dayCount = 0;
+        let vPotoke = deposit * 1.5;     // начальная сумма в потоке
 
         document.getElementById('vPotokeInfo').textContent = 
             vPotoke.toLocaleString('ru-RU', { minimumFractionDigits: 2 });
@@ -271,9 +270,10 @@
         let tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
 
-        // === Строка ОТКРЫТИЕ ===
         let currentDate = new Date();
-        let firstAccrual = vPotoke * percent;
+
+        // === Строка ОТКРЫТИЕ (справочное начисление) ===
+        let openingAccrual = vPotoke * percent;
 
         let openRow = document.createElement('tr');
         openRow.classList.add('opening-row');
@@ -281,11 +281,17 @@
             <td>ОТКРЫТИЕ</td>
             <td>-</td>
             <td class="vpotoke">${vPotoke.toFixed(2)}</td>
-            <td class="nach">${firstAccrual.toFixed(2)}</td>
+            <td class="nach">${openingAccrual.toFixed(2)}</td>
         `;
         tbody.appendChild(openRow);
 
-        // === Основной цикл расчёта реинвестов ===
+        // Реинвест 50% от начисления открытия сразу применяется
+        let reinvestFromOpening = openingAccrual * 0.5;
+        vPotoke += reinvestFromOpening;
+
+        // === Основной цикл дней (начиная с Дня 1) ===
+        let dayCount = 0;
+
         while (dayCount < maxDays) {
             if (currentDate.getDay() === 0) { // пропуск воскресенья
                 currentDate.setDate(currentDate.getDate() + 1);
@@ -294,12 +300,12 @@
 
             dayCount++;
 
-            // Начисление за текущий день
+            // Начисление за текущий день (уже от обновлённой суммы)
             let nachislenie = vPotoke * percent;
 
-            // Реинвест 50% от начисления обратно в поток
+            // Реинвест 50% обратно в поток
             let reinvest = nachislenie * 0.5;
-            vPotoke = vPotoke + reinvest;   // увеличиваем сумму в потоке
+            vPotoke += reinvest;
 
             let dateStr = currentDate.toLocaleDateString('ru-RU', {
                 day: '2-digit', 
