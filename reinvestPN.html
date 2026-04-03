@@ -98,7 +98,7 @@
         color: white;
         font-size: 1.1rem;
         text-align: center;
-	width: 184px;
+        width: 184px;                    /* ← Добавлено по твоей просьбе */
     }
 
     .deposit-input:focus {
@@ -153,10 +153,10 @@
         font-weight: 600;
     }
 
-    th:nth-child(1) { width: 28%; } /* Дата */
-    th:nth-child(2) { width: 14%; } /* День */
-    th:nth-child(3) { width: 29%; } /* В потоке */
-    th:nth-child(4) { width: 29%; } /* Начисление */
+    th:nth-child(1) { width: 28%; }
+    th:nth-child(2) { width: 14%; }
+    th:nth-child(3) { width: 29%; }
+    th:nth-child(4) { width: 29%; }
 
     tbody tr:nth-child(even) {
         background-color: #252f3f;
@@ -233,7 +233,6 @@
         const currencySelect = document.getElementById('currency');
         const errorDiv = document.getElementById('depositError');
         const noteDiv = document.getElementById('limitNote');
-        const infoDiv = document.querySelector('.info');
         const table = document.querySelector('table');
         const vPotokeInfo = document.getElementById('vPotokeInfo');
 
@@ -262,7 +261,7 @@
     function calculateReinvest(deposit) {
         const percent = 0.02;
         const maxDays = 180;
-        let vPotoke = deposit * 1.5;     // начальная сумма в потоке
+        let vPotoke = deposit * 1.5;
 
         document.getElementById('vPotokeInfo').textContent = 
             vPotoke.toLocaleString('ru-RU', { minimumFractionDigits: 2 });
@@ -272,8 +271,8 @@
 
         let currentDate = new Date();
 
-        // === Строка ОТКРЫТИЕ (справочное начисление) ===
-        let openingAccrual = vPotoke * percent;
+        // === ОТКРЫТИЕ ===
+        let nachislenie = vPotoke * percent;
 
         let openRow = document.createElement('tr');
         openRow.classList.add('opening-row');
@@ -281,31 +280,27 @@
             <td>ОТКРЫТИЕ</td>
             <td>-</td>
             <td class="vpotoke">${vPotoke.toFixed(2)}</td>
-            <td class="nach">${openingAccrual.toFixed(2)}</td>
+            <td class="nach">${nachislenie.toFixed(2)}</td>
         `;
         tbody.appendChild(openRow);
 
-        // Реинвест 50% от начисления открытия сразу применяется
-        let reinvestFromOpening = openingAccrual * 0.5;
-        vPotoke += reinvestFromOpening;
-
-        // === Основной цикл дней (начиная с Дня 1) ===
+        // === Цикл по дням ===
         let dayCount = 0;
 
         while (dayCount < maxDays) {
-            if (currentDate.getDay() === 0) { // пропуск воскресенья
+            if (currentDate.getDay() === 0) {
                 currentDate.setDate(currentDate.getDate() + 1);
                 continue;
             }
 
             dayCount++;
 
-            // Начисление за текущий день (уже от обновлённой суммы)
-            let nachislenie = vPotoke * percent;
-
-            // Реинвест 50% обратно в поток
+            // Реинвест 50% от прошлого начисления
             let reinvest = nachislenie * 0.5;
-            vPotoke += reinvest;
+            vPotoke = vPotoke + reinvest;           // В потоке = предыдущий + 50% от прошлого начисления
+
+            // Новое начисление = 2% от обновлённого "В потоке"
+            nachislenie = vPotoke * percent;
 
             let dateStr = currentDate.toLocaleDateString('ru-RU', {
                 day: '2-digit', 
