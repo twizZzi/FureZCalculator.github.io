@@ -242,6 +242,13 @@
         CNY:  { min: 160,   max: 16000,   symbol: '¥' }
     };
 
+    function formatNumber(num) {
+        return num.toLocaleString('ru-RU', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+        });
+    }
+    
     function validateAndCalculate() {
         const depositInput = document.getElementById('deposit');
         const currencySelect = document.getElementById('currency');
@@ -283,8 +290,7 @@
         let koshelek = 0;
         let dayCount = 0;
 
-        document.getElementById('vPotokeInfo').textContent = 
-            initialVPotoke.toLocaleString('ru-RU', { minimumFractionDigits: 2 });
+        document.getElementById('vPotokeInfo').textContent = formatNumber(initialVPotoke);
 
         let tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
@@ -295,8 +301,8 @@
         openRow.innerHTML = `
             <td>ОТКРЫТИЕ</td>
             <td>-</td>
-            <td class="vpotoke">${initialVPotoke.toFixed(2)}</td>
-            <td class="nach">${firstAccrual.toFixed(2)}</td>
+            <td class="vpotoke">${formatNumber(initialVPotoke)}</td>
+            <td class="nach">${formatNumber(firstAccrual)}</td>
             <td class="koshelek">0.00</td>
         `;
         tbody.appendChild(openRow);
@@ -324,9 +330,9 @@
             row.innerHTML = `
                 <td>${dateStr}</td>
                 <td>${dayCount}</td>
-                <td class="vpotoke">${vPotoke.toFixed(2)}</td>
-                <td class="nach">${(vPotoke * percent).toFixed(2)}</td>
-                <td class="koshelek">${koshelek.toFixed(2)}</td>
+                <td class="vpotoke">${formatNumber(vPotoke)}</td>
+                <td class="nach">${formatNumber(vPotoke * percent)}</td>
+                <td class="koshelek">${formatNumber(koshelek)}</td>
             `;
             tbody.appendChild(row);
 
