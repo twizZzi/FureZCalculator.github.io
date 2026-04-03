@@ -117,12 +117,12 @@
         <div id="error" class="error"></div>
     </div>
 
-    <div class="info">
-    Бонус: <strong id="multiplierInfo">+100%</strong><br>
-    Всего в потоке: <strong id="totalVpotoke" class="vpotoke">20 000.00</strong>
-</div>
+    <div class="info" id="infoBlock">
+        Бонус: <strong id="multiplierInfo">+100%</strong><br>
+        Всего в потоке: <strong id="totalVpotoke" class="vpotoke">20 000.00</strong>
+    </div>
 
-    <table>
+    <table id="resultTable">
         <thead>
             <tr>
                 <th style="width: 18%;">Дата</th>
@@ -190,16 +190,17 @@
         const tbody = document.getElementById('tableBody');
         const multInfo = document.getElementById('multiplierInfo');
         const totalInfo = document.getElementById('totalVpotoke');
+        const infoBlock = document.getElementById('infoBlock');
+        const table = document.getElementById('resultTable');
         
         note.textContent = `* от ${limit.min.toLocaleString('ru-RU')} до ∞ ${limit.symbol}`;
-
         tbody.innerHTML = '';
 
         if (deposit < limit.min) {
             error.style.display = 'block';
             error.textContent = `⚠ Сумма должна быть от ${limit.min.toLocaleString('ru-RU')} ${limit.symbol}`;
-            multInfo.textContent = '+100%';
-            totalInfo.textContent = '0.00';
+            infoBlock.style.display = 'none';
+            table.style.display = 'none';
             return;
         } else {
             error.style.display = 'none';
@@ -209,8 +210,14 @@
         if (mult === 0) {
             error.style.display = 'block';
             error.textContent = 'Сумма слишком мала для расчета';
+            infoBlock.style.display = 'none';
+            table.style.display = 'none';
             return;
         }
+
+        // ВСЁ ВАЛИДНО — показываем
+        infoBlock.style.display = 'block';
+        table.style.display = 'table';
 
         let vPotoke = deposit * mult;
         let koshelek = 0;
@@ -252,7 +259,11 @@
         }
     }
 
-    window.onload = calculateRP;
+    window.onload = () => {
+        document.getElementById('infoBlock').style.display = 'none';
+        document.getElementById('resultTable').style.display = 'none';
+        calculateRP();
+    };
 </script>
 </body>
 </html>
