@@ -249,24 +249,25 @@
         const noteDiv = document.getElementById('limitNote');
         const infoDiv = document.querySelector('.info');
         const table = document.querySelector('table');
+        const vPotokeInfo = document.getElementById('vPotokeInfo');
 
         const currency = currencySelect.value;
         const limit = limits[currency];
         let deposit = parseFloat(depositInput.value) || 0;
 
-        // Обновляем подсказку с лимитами
         noteDiv.textContent = `* от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
 
-        // Если сумма некорректная — скрываем инфо и таблицу
-        if (deposit < limit.min || deposit > limit.max || isNaN(deposit) || deposit === 0) {
+        const isValid = deposit >= limit.min && deposit <= limit.max && deposit > 0;
+
+        if (!isValid) {
             errorDiv.style.display = 'block';
             errorDiv.textContent = `⚠ Сумма должна быть от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
-            infoDiv.style.display = 'none';
+            infoDiv.style.display = 'block';      // ← всегда показываем блок
+            vPotokeInfo.textContent = '';         // ← сумма скрыта
             table.style.display = 'none';
             return;
         } 
 
-        // Если всё хорошо — показываем и считаем
         errorDiv.style.display = 'none';
         infoDiv.style.display = 'block';
         table.style.display = 'table';
@@ -288,7 +289,6 @@
         let tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
 
-        // Строка "ОТКРЫТИЕ"
         let firstAccrual = initialVPotoke * percent;
         let openRow = document.createElement('tr');
         openRow.classList.add('opening-row');
@@ -335,12 +335,9 @@
         }
     }
 
-    // При загрузке страницы сразу скрываем таблицу и инфо
     window.onload = () => {
-        document.querySelector('.info').style.display = 'none';
         document.querySelector('table').style.display = 'none';
-        validateAndCalculate();   // первый расчёт (если значение по умолчанию валидно)
+        validateAndCalculate();
     };
 </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e6a60368ae70bc5',t:'MTc3NTI0MzQ1MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
