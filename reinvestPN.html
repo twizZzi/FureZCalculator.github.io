@@ -98,7 +98,7 @@
         color: white;
         font-size: 1.1rem;
         text-align: center;
-        width: 184px;                    /* ← Добавлено по твоей просьбе */
+        width: 184px;
     }
 
     .deposit-input:focus {
@@ -228,6 +228,13 @@
         CNY:  { min: 160,   max: 16000,   symbol: '¥' }
     };
 
+    function formatNumber(num) {
+        return num.toLocaleString('ru-RU', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+        });
+    }
+
     function validateAndCalculate() {
         const depositInput = document.getElementById('deposit');
         const currencySelect = document.getElementById('currency');
@@ -263,8 +270,7 @@
         const maxDays = 180;
         let vPotoke = deposit * 1.5;
 
-        document.getElementById('vPotokeInfo').textContent = 
-            vPotoke.toLocaleString('ru-RU', { minimumFractionDigits: 2 });
+        document.getElementById('vPotokeInfo').textContent = formatNumber(vPotoke);
 
         let tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
@@ -279,8 +285,8 @@
         openRow.innerHTML = `
             <td>ОТКРЫТИЕ</td>
             <td>-</td>
-            <td class="vpotoke">${vPotoke.toFixed(2)}</td>
-            <td class="nach">${nachislenie.toFixed(2)}</td>
+            <td class="vpotoke">${formatNumber(vPotoke)}</td>
+            <td class="nach">${formatNumber(nachislenie)}</td>
         `;
         tbody.appendChild(openRow);
 
@@ -295,11 +301,8 @@
 
             dayCount++;
 
-            // Реинвест 50% от прошлого начисления
             let reinvest = nachislenie * 0.5;
-            vPotoke = vPotoke + reinvest;           // В потоке = предыдущий + 50% от прошлого начисления
-
-            // Новое начисление = 2% от обновлённого "В потоке"
+            vPotoke = vPotoke + reinvest;
             nachislenie = vPotoke * percent;
 
             let dateStr = currentDate.toLocaleDateString('ru-RU', {
@@ -312,8 +315,8 @@
             row.innerHTML = `
                 <td>${dateStr}</td>
                 <td>${dayCount}</td>
-                <td class="vpotoke">${vPotoke.toFixed(2)}</td>
-                <td class="nach">${nachislenie.toFixed(2)}</td>
+                <td class="vpotoke">${formatNumber(vPotoke)}</td>
+                <td class="nach">${formatNumber(nachislenie)}</td>
             `;
             tbody.appendChild(row);
 
