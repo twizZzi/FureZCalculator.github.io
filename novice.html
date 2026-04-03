@@ -1,3 +1,235 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Поток Новичка - FureZ Calculator</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: #0f172a;
+        color: #e2e8f0;
+        margin: 0;
+        padding: 16px;
+        max-width: 430px;
+        margin: 0 auto;
+    }
+
+    /* Шапка с кнопкой назад и заголовком */
+    .header-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        margin: 10px 0 25px;
+    }
+
+    .back-btn {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #334155;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .back-btn:active {
+        background: #475569;
+        transform: translateY(-50%) scale(0.9);
+    }
+
+    h2 {
+        margin: 0;
+        font-size: 1.6rem;
+        color: #c4d0ff;
+        text-align: center;
+    }
+
+    /* Карточки ввода и инфо */
+    .card {
+        background: #1e2937;
+        border-radius: 18px;
+        padding: 20px;
+        margin-bottom: 22px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .info {
+        background: #1e2937;
+        border-radius: 18px;
+        padding: 20px;
+        margin-bottom: 22px;
+        width: 100%;
+        font-size: 1.2rem;
+        box-sizing: border-box;
+        text-align: center;
+        line-height: 1.65;
+    }
+
+    .deposit-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #94a3b8;
+            font-size: 0.97rem;
+        }
+
+        .deposit-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .deposit-input {
+            flex: 1;
+            padding: 16px 14px;
+            background: #334155;
+            border: 2px solid #3b82f6;
+            border-radius: 14px;
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+            width: 184px;
+        }
+
+        .deposit-input:focus {
+            border-color: #60a5fa;
+        }
+
+        .currency-select {
+            flex: 1;
+            padding: 16px 10px;
+            background: #334155;
+            border: 2px solid #3b82f6;
+            border-radius: 14px;
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+    .note {
+        font-size: 0.86rem;
+        color: #64748b;
+        margin-top: 10px;
+    }
+
+    .error {
+        color: #f87171;
+        font-size: 0.9rem;
+        margin-top: 8px;
+        text-align: center;
+        display: none;
+    }
+
+    /* Таблица */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #1e2937;
+        font-size: 11.5px;
+        border-radius: 14px;
+        overflow: hidden;
+        margin-top: 8px;
+        table-layout: fixed;
+    }
+
+    th, td {
+        padding: 10px 2px;
+        text-align: center;
+        border-bottom: 1px solid #475569;
+        word-wrap: break-word;
+    }
+
+    th {
+        background: #334155;
+        color: #c4d0ff;
+        font-weight: 600;
+    }
+
+    th:nth-child(1) { width: 22%; } /* Дата */
+    th:nth-child(2) { width: 12%; } /* День */
+    th:nth-child(3) { width: 22%; } /* В потоке */
+    th:nth-child(4) { width: 22%; } /* Начисление */
+    th:nth-child(5) { width: 22%; } /* Кошелек */
+
+    tbody tr:nth-child(even) {
+        background-color: #252f3f;
+    }
+
+    /* Стили для строки ОТКРЫТИЕ */
+    .opening-row {
+        background-color: #334155 !important;
+        font-weight: bold;
+    }
+
+    .nach { color: #34d399; font-weight: bold; }
+    .koshelek { color: #60a5fa; font-weight: bold; }
+    .vpotoke { color: #fbbf24; font-weight: bold; }
+
+    .deposit-input::-webkit-outer-spin-button,
+    .deposit-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+</style>
+</head>
+<body>
+
+    <div class="header-container">
+    <a href="index.html" class="back-btn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+    </a>
+    <h2>Поток Новичка</h2>
+    </div>
+
+    <div class="card">
+        <label class="deposit-label">Депозит</label>
+        <div class="deposit-row">
+            <input type="number" id="deposit" class="deposit-input" value="100000"
+                   oninput="validateAndCalculate()">
+            <select id="currency" class="currency-select" onchange="validateAndCalculate()">
+                <option value="RUB">RUB</option>
+                <option value="USDT">USDT</option>
+                <option value="EUR">EURO</option>
+                <option value="CNY">CNY</option>
+            </select>
+        </div>
+        <div class="note" id="limitNote">* от 2 000 до 200 000 RUB</div>
+        <div id="depositError" class="error"></div>
+    </div>
+
+    <div class="info">
+        Сумма в потоке = Депозит + 50%<br>
+        <strong id="vPotokeInfo">150 000.00</strong>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>День</th>
+                <th class="vpotoke">В потоке</th>
+                <th class="nach">Начисление</th>
+                <th class="koshelek">Кошелек</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
 <script>
     const tg = window.Telegram.WebApp;
     tg.ready();
@@ -110,3 +342,5 @@
         validateAndCalculate();   // первый расчёт (если значение по умолчанию валидно)
     };
 </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e6a60368ae70bc5',t:'MTc3NTI0MzQ1MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
