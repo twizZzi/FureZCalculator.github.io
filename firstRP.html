@@ -146,6 +146,14 @@
         USDT: { min: 100, symbol: '₮' }
     };
 
+    // Функция форматирования чисел с пробелами и двумя знаками после запятой
+    function formatNumber(num) {
+        return num.toLocaleString('ru-RU', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+        });
+    }
+
     function getMultiplier(currency, sum) {
         if (currency === 'USDT') {
             if (sum >= 1000000) return 3.8;
@@ -224,7 +232,7 @@
         let currentDate = new Date();
         
         multInfo.textContent = getBonusText(mult);
-        totalInfo.textContent = vPotoke.toLocaleString('ru-RU', {minimumFractionDigits: 2});
+        totalInfo.textContent = formatNumber(vPotoke);
 
         for (let day = 1; day <= 180; day++) {
             while (currentDate.getDay() === 0) {
@@ -248,9 +256,9 @@
                 <td>${dateStr}</td>
                 <td>${day}</td>
                 <td class="pct">${currentPercent.toFixed(4)}%</td>
-                <td class="vpotoke">${vPotoke.toFixed(2)}</td>
-                <td class="nach">${nachislenie.toFixed(2)}</td>
-                <td class="koshelek">${koshelek.toFixed(2)}</td>
+                <td class="vpotoke">${formatNumber(vPotoke)}</td>
+                <td class="nach">${formatNumber(nachislenie)}</td>
+                <td class="koshelek">${formatNumber(koshelek)}</td>
             `;
             tbody.appendChild(row);
 
