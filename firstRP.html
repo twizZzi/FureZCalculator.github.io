@@ -104,6 +104,7 @@
 
         .pct { color: #a5b4fc; }
         .vpotoke { color: #fbbf24; }
+        .opening-row { background-color: #334155 !important; font-weight: bold; }
         .nach { color: #34d399; font-weight: bold; }
         .koshelek { color: #60a5fa; font-weight: bold; }
 
@@ -261,6 +262,22 @@
         let vPotoke = deposit * mult;
         let koshelek = 0;
         let currentDate = new Date();
+
+        let openPercent = 0.1;
+        let openNachislenie = vPotoke * (openPercent / 100);
+        
+        let openRow = document.createElement('tr');
+        openRow.classList.add('opening-row');
+        openRow.innerHTML = `
+            <td>ОТКРЫТИЕ</td>
+            <td>-</td>
+            <td class="pct">${openPercent.toFixed(4)}%</td>
+            <td class="vpotoke">${formatNumber(vPotoke)}</td>
+            <td class="nach">${formatNumber(openNachislenie)}</td>
+            <td class="koshelek">0.00</td>
+        `;
+        
+        tbody.appendChild(openRow);
         
         multInfo.textContent = getBonusText(mult);
         totalInfo.textContent = formatNumber(vPotoke);
