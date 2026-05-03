@@ -282,23 +282,30 @@
         multInfo.textContent = getBonusText(mult);
         totalInfo.textContent = formatNumber(vPotoke);
 
+        let previousNachislenie = openNachislenie;
+
         for (let day = 1; day <= 180; day++) {
+        
             while (currentDate.getDay() === 0) {
                 currentDate.setDate(currentDate.getDate() + 1);
             }
-
+        
+            // Сначала списываем прошлое начисление
+            vPotoke -= previousNachislenie;
+            koshelek += previousNachislenie;
+        
+            // Новый процент
             let currentPercent = 0.1 + day * 0.0033;
+        
+            // Новое начисление (только для отображения)
             let nachislenie = vPotoke * (currentPercent / 100);
-            
-            vPotoke -= nachislenie;
-            koshelek += nachislenie;
-
-            let dateStr = currentDate.toLocaleDateString('ru-RU', { 
-                day: '2-digit', 
-                month: '2-digit', 
-                year: '2-digit' 
+        
+            let dateStr = currentDate.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: '2-digit'
             });
-
+        
             let row = document.createElement('tr');
             row.innerHTML = `
                 <td>${dateStr}</td>
@@ -308,9 +315,14 @@
                 <td class="nach">${formatNumber(nachislenie)}</td>
                 <td class="koshelek">${formatNumber(koshelek)}</td>
             `;
+        
             tbody.appendChild(row);
-
+        
+            // Сохраняем начисление для следующего дня
+            previousNachislenie = nachislenie;
+        
             currentDate.setDate(currentDate.getDate() + 1);
+        
             if (vPotoke < 0.01) break;
         }
     }
