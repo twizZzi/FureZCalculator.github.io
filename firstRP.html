@@ -279,6 +279,10 @@
         
         tbody.appendChild(openRow);
         
+        // После строки открытия уменьшаем поток и начисляем в кошелек
+        vPotoke -= openNachislenie;
+        koshelek += openNachislenie;
+        
         multInfo.textContent = getBonusText(mult);
         totalInfo.textContent = formatNumber(vPotoke);
 
