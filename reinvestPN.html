@@ -321,10 +321,21 @@
         `;
         tbody.appendChild(openRow);
 
-        // === Цикл по дням до 300000 ===
+        // === Лимиты по валютам ===
+        const maxLimits = {
+            RUB: 300000,
+            USDT: 3000,
+            EUR: 3000,
+            CNY: 16000
+        };
+
+        const currency = document.getElementById('currency').value;
+        const maxLimit = maxLimits[currency];
+
+        // === Цикл по дням до лимита ===
         let dayCount = 0;
 
-        while (vPotoke < 300000) {
+        while (vPotoke < maxLimit) {
             if (currentDate.getDay() === 0) { // пропуск воскресений
                 currentDate.setDate(currentDate.getDate() + 1);
                 continue;
@@ -335,8 +346,8 @@
             let reinvest = nachislenie * 0.5;
             vPotoke += reinvest;
 
-            if (vPotoke > 300000) {
-                vPotoke = 300000;
+            if (vPotoke > maxLimit) {
+                vPotoke = maxLimit;
             }
 
             nachislenie = vPotoke * percent;
@@ -356,7 +367,7 @@
             `;
             tbody.appendChild(row);
 
-            if (vPotoke >= 300000) break;
+            if (vPotoke >= maxLimit) break;
 
             currentDate.setDate(currentDate.getDate() + 1);
         }
