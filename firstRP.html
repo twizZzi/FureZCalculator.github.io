@@ -291,7 +291,7 @@
                 currentDate.setDate(currentDate.getDate() + 1);
             }
 
-            let currentPercent = 0.1 + (day - 1) * 0.0033;
+            let currentPercent = 0.1 + day * 0.0033;
             let nachislenie = vPotoke * (currentPercent / 100);
             
             vPotoke -= nachislenie;
