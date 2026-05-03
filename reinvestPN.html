@@ -197,7 +197,7 @@
 </head>
 <body>
 
-        <div class="header-container">
+    <div class="header-container">
         <a href="novicePotok.html" class="back-btn">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -299,7 +299,6 @@
 
     function calculateReinvest(deposit) {
         const percent = 0.02;
-        const maxDays = 180;
         let vPotoke = deposit * 1.5;
 
         document.getElementById('vPotokeInfo').textContent = formatNumber(vPotoke);
@@ -322,11 +321,11 @@
         `;
         tbody.appendChild(openRow);
 
-        // === Цикл по дням ===
+        // === Цикл по дням до 300000 ===
         let dayCount = 0;
 
-        while (dayCount < maxDays) {
-            if (currentDate.getDay() === 0) {
+        while (vPotoke < 300000) {
+            if (currentDate.getDay() === 0) { // пропуск воскресений
                 currentDate.setDate(currentDate.getDate() + 1);
                 continue;
             }
@@ -334,7 +333,12 @@
             dayCount++;
 
             let reinvest = nachislenie * 0.5;
-            vPotoke = vPotoke + reinvest;
+            vPotoke += reinvest;
+
+            if (vPotoke > 300000) {
+                vPotoke = 300000;
+            }
+
             nachislenie = vPotoke * percent;
 
             let dateStr = currentDate.toLocaleDateString('ru-RU', {
@@ -352,7 +356,7 @@
             `;
             tbody.appendChild(row);
 
-            if (vPotoke < 0.01) break;
+            if (vPotoke >= 300000) break;
 
             currentDate.setDate(currentDate.getDate() + 1);
         }
