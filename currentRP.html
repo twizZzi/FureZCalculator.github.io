@@ -61,30 +61,14 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             margin-bottom: 24px;
             border: 1px solid #334155;
-            position: relative;
-        }
-
-        .header-with-currency {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
         }
 
         .section-title {
             color: #60a5fa;
             font-size: 1.1rem;
             font-weight: 600;
-            margin: 0;
-        }
-
-        .currency-select {
-            background: #0f172a;
-            border: 2px solid #475569;
-            border-radius: 12px;
-            color: white;
-            padding: 8px 12px;
-            font-size: 1.05rem;
+            text-align: center;
+            margin-bottom: 24px;
         }
 
         .input-group {
@@ -115,13 +99,6 @@
             border-color: #60a5fa;
             box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
             outline: none;
-        }
-
-        .note {
-            font-size: 0.85rem;
-            color: #64748b;
-            text-align: center;
-            margin-top: 12px;
         }
 
         /* ===================== ТАБЛИЦА ===================== */
@@ -193,30 +170,23 @@
     </div>
 
     <div class="main-card">
-        <div class="header-with-currency">
-            <div class="section-title">Параметры потока</div>
-            <select id="currency" class="currency-select" onchange="calculateCurrent()">
-                <option value="RUB">RUB</option>
-                <option value="USDT">USDT</option>
-            </select>
-        </div>
+        <div class="section-title">Параметры потока</div>
         
         <div class="input-group">
             <label class="input-label">В потоке</label>
-            <input type="number" id="vpotoke" class="deposit-input" value="531427.84" oninput="calculateCurrent()">
+            <input type="number" id="vpotoke" class="deposit-input" placeholder="0.00" oninput="calculateCurrent()">
         </div>
 
         <div class="input-group">
             <label class="input-label">Последнее начисление</label>
-            <input type="number" id="lastNach" class="deposit-input" value="1360.46" oninput="calculateCurrent()">
+            <input type="number" id="lastNach" class="deposit-input" placeholder="0.00" oninput="calculateCurrent()">
         </div>
 
         <div class="input-group">
             <label class="input-label">На кошельке</label>
-            <input type="number" id="koshelek" class="deposit-input" value="51133.10" oninput="calculateCurrent()">
+            <input type="number" id="koshelek" class="deposit-input" placeholder="0.00" oninput="calculateCurrent()">
         </div>
 
-        <div class="note" id="limitNote">* минимальная сумма в потоке — 1 000</div>
         <div id="error" class="error"></div>
     </div>
 
@@ -235,15 +205,9 @@
     </table>
 
 <script>
-    // (Логика без изменений)
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
-
-    const limits = {
-        RUB: { min: 1000, symbol: '₽' },
-        USDT: { min: 100, symbol: '₮' }
-    };
 
     function formatNumber(num) {
         return num.toLocaleString('ru-RU', { 
@@ -253,59 +217,66 @@
     }
 
     function calculateCurrent() {
-        const vpotokeInput = parseFloat(document.getElementById('vpotoke').value) || 0;
-        const lastNachInput = parseFloat(document.getElementById('lastNach').value) || 0;
-        const koshelekInput = parseFloat(document.getElementById('koshelek').value) || 0;
-        const currency = document.getElementById('currency').value;
-        const limit = limits[currency];
+        let vpotoke = parseFloat(document.getElementById('vpotoke').value) || 0;
+        let lastNach = parseFloat(document.getElementById('lastNach').value) || 0;
+        let koshelek = parseFloat(document.getElementById('koshelek').value) || 0;
 
         const error = document.getElementById('error');
         const tbody = document.getElementById('tableBody');
         const table = document.getElementById('resultTable');
 
         tbody.innerHTML = '';
+        error.style.display = 'none';
 
-        if (vpotokeInput < limit.min) {
+        // Защита от нулевых и отрицательных значений
+        if (vpotoke <= 0 || lastNach < 0 || koshelek < 0) {
             error.style.display = 'block';
-            error.textContent = `⚠ Сумма в потоке должна быть от ${limit.min.toLocaleString('ru-RU')} ${limit.symbol}`;
+            error.textContent = 'Все суммы должны быть больше 0';
             table.style.display = 'none';
             return;
-        } else {
-            error.style.display = 'none';
+        }
+
+        // Защита от ситуации, когда начисление больше суммы в потоке
+        if (lastNach >= vpotoke) {
+            error.style.display = 'block';
+            error.textContent = 'Начисление не может быть больше или равно сумме в потоке';
+            table.style.display = 'none';
+            return;
         }
 
         table.style.display = 'table';
 
-        let vPotoke = vpotokeInput;
-        let koshelek = koshelekInput;
         let currentDate = new Date();
+        let currentPercent = (lastNach / vpotoke) * 100;
 
-        let currentPercent = lastNachInput > 0 ? (lastNachInput / vPotoke) * 100 : 0.1;
-
+        // Первая строка — ТЕКУЩИЙ
         let openRow = document.createElement('tr');
         openRow.classList.add('opening-row');
         openRow.innerHTML = `
             <td>ТЕКУЩИЙ</td>
             <td>-</td>
             <td class="pct">${currentPercent.toFixed(4)}%</td>
-            <td class="vpotoke">${formatNumber(vPotoke)}</td>
-            <td class="nach">${formatNumber(lastNachInput)}</td>
+            <td class="vpotoke">${formatNumber(vpotoke)}</td>
+            <td class="nach">${formatNumber(lastNach)}</td>
             <td class="koshelek">${formatNumber(koshelek)}</td>
         `;
         tbody.appendChild(openRow);
 
-        let previousNachislenie = lastNachInput;
+        let previousNachislenie = lastNach;
 
         for (let day = 1; day <= 180; day++) {
             while (currentDate.getDay() === 0) {
                 currentDate.setDate(currentDate.getDate() + 1);
             }
 
-            vPotoke -= previousNachislenie;
+            vpotoke -= previousNachislenie;
             koshelek += previousNachislenie;
 
+            // Защита от отрицательного значения в потоке
+            if (vpotoke < 0) vpotoke = 0;
+
             let nextPercent = currentPercent + day * 0.0033;
-            let nachislenie = vPotoke * (nextPercent / 100);
+            let nachislenie = vpotoke * (nextPercent / 100);
 
             let dateStr = currentDate.toLocaleDateString('ru-RU', {
                 day: '2-digit',
@@ -318,7 +289,7 @@
                 <td>${dateStr}</td>
                 <td>${day}</td>
                 <td class="pct">${nextPercent.toFixed(4)}%</td>
-                <td class="vpotoke">${formatNumber(vPotoke)}</td>
+                <td class="vpotoke">${formatNumber(vpotoke)}</td>
                 <td class="nach">${formatNumber(nachislenie)}</td>
                 <td class="koshelek">${formatNumber(koshelek)}</td>
             `;
@@ -328,13 +299,12 @@
             previousNachislenie = nachislenie;
             currentDate.setDate(currentDate.getDate() + 1);
 
-            if (vPotoke < 0.01) break;
+            if (vpotoke < 0.01) break;
         }
     }
 
     window.onload = () => {
         document.getElementById('resultTable').style.display = 'none';
-        calculateCurrent();
     };
 </script>
 </body>
