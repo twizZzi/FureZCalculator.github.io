@@ -121,61 +121,71 @@
             transform: scale(0.97);
         }
 
-        /* ===================== КАРДИНАЛЬНО НОВЫЙ ДИЗАЙН ТАБЛИЦЫ ===================== */
+        /* ===================== НОВЫЙ МИНИМАЛИСТИЧНЫЙ ДИЗАЙН ТАБЛИЦЫ ===================== */
         table {
-            width: 100%; 
-            border-collapse: collapse; 
-            background: #1e2937;
-            font-size: 10.5px; 
-            border-radius: 20px; 
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(30, 41, 55, 0.6);
+            backdrop-filter: blur(12px);
+            font-size: 10.8px;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.4);
-            border: 1px solid #334155;
-        }
-
-        thead {
-            background: linear-gradient(135deg, #24a484, #1e8c6e);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(51, 65, 85, 0.5);
         }
 
         th {
-            color: #ffffff;
-            padding: 15px 6px;
-            font-weight: 700;
+            background: rgba(36, 164, 132, 0.15);
+            color: #24a484;
+            padding: 16px 8px;
+            font-weight: 600;
             text-transform: uppercase;
-            font-size: 10.8px;
-            letter-spacing: 0.6px;
-            border-bottom: 2px solid #34d399;
+            letter-spacing: 0.8px;
+            font-size: 9.5px;
+            border-bottom: 2px solid rgba(36, 164, 132, 0.3);
         }
 
         td {
-            padding: 13px 6px;
+            padding: 14px 8px;
             text-align: center;
-            border-bottom: 1px solid #2a3a4f;
-            transition: background 0.2s;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+            transition: background 0.2s ease;
         }
 
-        tr:hover {
-            background: rgba(52, 211, 153, 0.08);
+        tr:hover td {
+            background: rgba(36, 164, 132, 0.08);
         }
 
         tr:last-child td {
             border-bottom: none;
         }
 
-        .pct { color: #bae6fd; font-weight: 500; }
-        .vpotoke { color: #fde047; font-weight: 700; }
-        .nach { color: #4ade80; font-weight: 700; }
-        .koshelek { color: #7dd3fc; font-weight: 700; }
+        .pct { 
+            color: #a5b4fc; 
+            font-weight: 500; 
+        }
+        .vpotoke { 
+            color: #fcd34d; 
+            font-weight: 600; 
+        }
+        .nach { 
+            color: #34d399; 
+            font-weight: 600; 
+        }
+        .koshelek { 
+            color: #60a5fa; 
+            font-weight: 600; 
+        }
 
         .opening-row {
-            background: linear-gradient(90deg, #1e40af, #2563eb) !important;
+            background: linear-gradient(90deg, rgba(30, 64, 175, 0.9), rgba(59, 130, 246, 0.9)) !important;
             color: white;
             font-weight: 700;
             position: relative;
         }
 
         .opening-row td {
-            border-bottom: 2px solid #60a5fa;
+            border-bottom: 2px solid rgba(255,255,255,0.2) !important;
         }
 
         .error { 
