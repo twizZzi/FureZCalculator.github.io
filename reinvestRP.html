@@ -69,7 +69,7 @@
         .deposit-input {
             flex: 1; padding: 16px 14px; background: #334155;
             border: 2px solid #24a484; border-radius: 14px;
-            color: white; font-size: 1.1rem; text-align: center; width: 184px;
+            color: white; font-size: 1.1rem; text-align: center;
         }
 
         .currency-select {
@@ -176,38 +176,6 @@
         });
     }
 
-    function getMultiplier(currency, sum) {
-        if (currency === 'USDT') {
-            if (sum >= 1000000) return 3.8;
-            if (sum >= 500000)  return 3.7;
-            if (sum >= 250000)  return 3.6;
-            if (sum >= 100000)  return 3.5;
-            if (sum >= 50000)   return 3.3;
-            if (sum >= 25000)   return 3.1;
-            if (sum >= 10000)   return 3.0;
-            if (sum >= 5000)    return 2.8;
-            if (sum >= 2500)    return 2.6;
-            if (sum >= 1000)    return 2.5;
-            if (sum >= 500)     return 2.4;
-            if (sum >= 100)     return 2.3;
-            return 0;
-        } else {
-            if (sum >= 1000000) return 3;
-            if (sum >= 500000)  return 2.75;
-            if (sum >= 100000)  return 2.5;
-            if (sum >= 50000)   return 2.25;
-            if (sum >= 10000)   return 2;
-            if (sum >= 5000)    return 1.75;
-            if (sum >= 1000)    return 1.5;
-            return 0;
-        }
-    }
-
-    function getBonusText(mult) {
-        const bonusPercent = Math.round((mult - 1) * 100);
-        return `+${bonusPercent}%`;
-    }
-
     function calculateRP() {
         const depositInput = document.getElementById('deposit');
         const currencySelect = document.getElementById('currency');
@@ -232,17 +200,10 @@
             error.style.display = 'none';
         }
 
-        const mult = getMultiplier(currency, deposit);
-        if (mult === 0) {
-            error.style.display = 'block';
-            error.textContent = 'Сумма слишком мала для расчета';
-            table.style.display = 'none';
-            return;
-        }
-
         table.style.display = 'table';
 
-        let vPotoke = deposit * mult;
+        // === ИЗМЕНЕНО: теперь без умножения на множитель ===
+        let vPotoke = deposit;
         let koshelek = 0;
         let currentDate = new Date();
 
