@@ -102,29 +102,46 @@
             outline: none;
         }
 
-        /* Минималистичная кнопка */
+        /* Кнопки */
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
         .apply-btn {
-            width: 88%;
-            margin: 20px auto 0;
-            display: block;
-            padding: 15px;
-            background: transparent;
-            color: #24a484;
-            border: 2px solid #24a484;
+            flex: 2;
+            padding: 16px;
+            background: linear-gradient(135deg, #24a484, #34d399);
+            color: white;
+            border: none;
             border-radius: 16px;
             font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .apply-btn:active {
+            transform: scale(0.97);
+        }
+
+        .clear-btn {
+            flex: 1;
+            padding: 16px;
+            background: transparent;
+            color: #94a3b8;
+            border: 2px solid #475569;
+            border-radius: 16px;
+            font-size: 1.05rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
-        .apply-btn:hover {
-            background: rgba(36, 164, 132, 0.1);
-        }
-
-        .apply-btn:active {
+        .clear-btn:active {
             transform: scale(0.97);
-            background: rgba(36, 164, 132, 0.2);
+            background: rgba(71, 85, 105, 0.2);
         }
 
         /* ===================== ТАБЛИЦА ===================== */
@@ -152,7 +169,6 @@
             border-bottom: 1px solid #334155;
         }
 
-        /* Чередующиеся строки */
         tbody tr:nth-child(odd) {
             background: #1e2937;
         }
@@ -164,13 +180,11 @@
             background: #2f4a6b !important;
         }
 
-        /* Более спокойное выделение строки "ТЕКУЩИЙ" */
+        /* Спокойное выделение строки "ТЕКУЩИЙ" */
         .opening-row {
             background: rgba(36, 164, 132, 0.25) !important;
             color: #e2e8f0;
             font-weight: 700;
-            border-top: 2px solid #24a484;
-            border-bottom: 2px solid #24a484;
         }
 
         .pct { color: #a5b4fc; font-weight: 500; }
@@ -228,7 +242,10 @@
                    onfocus="this.placeholder=''" onblur="if(!this.value) this.placeholder='0.00'" oninput="clearTable()">
         </div>
 
-        <button class="apply-btn" onclick="calculateCurrent()">Применить</button>
+        <div class="buttons-container">
+            <button class="apply-btn" onclick="calculateCurrent()">Применить</button>
+            <button class="clear-btn" onclick="clearAll()">Очистить</button>
+        </div>
 
         <div id="error" class="error"></div>
     </div>
@@ -262,6 +279,13 @@
     function clearTable() {
         document.getElementById('resultTable').style.display = 'none';
         document.getElementById('error').style.display = 'none';
+    }
+
+    function clearAll() {
+        document.getElementById('vpotoke').value = '';
+        document.getElementById('lastNach').value = '';
+        document.getElementById('koshelek').value = '';
+        clearTable();
     }
 
     function calculateCurrent() {
