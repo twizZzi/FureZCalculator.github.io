@@ -49,9 +49,10 @@
             margin: 0; 
             font-size: 1.65rem; 
             font-weight: 700; 
-            background: linear-gradient(90deg, #60a5fa, #a5b4fc);
+            background: linear-gradient(90deg, #24a484, #34d399);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-align: center;
         }
 
         .main-card {
@@ -64,8 +65,8 @@
         }
 
         .section-title {
-            color: #60a5fa;
-            font-size: 1.1rem;
+            color: #24a484;
+            font-size: 1.15rem;
             font-weight: 600;
             text-align: center;
             margin-bottom: 24px;
@@ -96,8 +97,8 @@
         }
 
         .deposit-input:focus {
-            border-color: #60a5fa;
-            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
+            border-color: #24a484;
+            box-shadow: 0 0 0 4px rgba(36, 164, 132, 0.2);
             outline: none;
         }
 
@@ -106,7 +107,7 @@
             margin: 20px auto 0;
             display: block;
             padding: 16px;
-            background: linear-gradient(135deg, #334155, #475569);
+            background: linear-gradient(135deg, #24a484, #34d399);
             color: white;
             border: none;
             border-radius: 16px;
@@ -118,35 +119,36 @@
 
         .apply-btn:active {
             transform: scale(0.97);
-            background: linear-gradient(135deg, #475569, #64748b);
         }
 
-        /* ===================== ТАБЛИЦА ===================== */
+        /* ===================== НОВЫЙ ДИЗАЙН ТАБЛИЦЫ ===================== */
         table {
             width: 100%; 
             border-collapse: collapse; 
             background: #1e2937;
-            font-size: 10.5px; 
+            font-size: 10.8px; 
             border-radius: 20px; 
             overflow: hidden;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
         }
 
         th {
-            background: linear-gradient(135deg, #334155, #475569);
-            color: #c4d0ff;
+            background: linear-gradient(135deg, #24a484, #1e8c6e);
+            color: #ffffff;
             padding: 14px 6px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         td {
-            padding: 12px 6px;
+            padding: 13px 6px;
             text-align: center;
             border-bottom: 1px solid #334155;
         }
 
         tr:hover {
-            background: #253549;
+            background: #2a3a4f;
         }
 
         .pct { color: #a5b4fc; font-weight: 500; }
@@ -155,7 +157,7 @@
         .koshelek { color: #60a5fa; font-weight: 600; }
 
         .opening-row {
-            background: linear-gradient(90deg, #1e40af, #3b82f6) !important;
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6) !important;
             color: white;
             font-weight: 700;
         }
@@ -193,18 +195,21 @@
         <div class="section-title">Параметры потока</div>
         
         <div class="input-group">
-            <label class="input-label">В потоке</label>
-            <input type="number" id="vpotoke" class="deposit-input" placeholder="0.00" onfocus="this.placeholder=''" onblur="if(!this.value) this.placeholder='0.00'" oninput="clearTable()">
+            <label class="input-label">Текущая сумма в потоке</label>
+            <input type="number" id="vpotoke" class="deposit-input" placeholder="0.00" 
+                   onfocus="this.placeholder=''" onblur="if(!this.value) this.placeholder='0.00'" oninput="clearTable()">
         </div>
 
         <div class="input-group">
-            <label class="input-label">Последнее начисление</label>
-            <input type="number" id="lastNach" class="deposit-input" placeholder="0.00" onfocus="this.placeholder=''" onblur="if(!this.value) this.placeholder='0.00'" oninput="clearTable()">
+            <label class="input-label">Текущее начисление</label>
+            <input type="number" id="lastNach" class="deposit-input" placeholder="0.00" 
+                   onfocus="this.placeholder=''" onblur="if(!this.value) this.placeholder='0.00'" oninput="clearTable()">
         </div>
 
         <div class="input-group">
-            <label class="input-label">На кошельке</label>
-            <input type="number" id="koshelek" class="deposit-input" placeholder="0.00" onfocus="this.placeholder=''" onblur="if(!this.value) this.placeholder='0.00'" oninput="clearTable()">
+            <label class="input-label">Сейчас в кошельке</label>
+            <input type="number" id="koshelek" class="deposit-input" placeholder="0.00" 
+                   onfocus="this.placeholder=''" onblur="if(!this.value) this.placeholder='0.00'" oninput="clearTable()">
         </div>
 
         <button class="apply-btn" onclick="calculateCurrent()">Применить</button>
@@ -272,7 +277,6 @@
         let currentDate = new Date();
         let currentPercent = (lastNach / vpotoke) * 100;
 
-        // Строка "ТЕКУЩИЙ"
         let openRow = document.createElement('tr');
         openRow.classList.add('opening-row');
         openRow.innerHTML = `
