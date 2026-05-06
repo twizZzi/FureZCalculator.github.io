@@ -1,203 +1,329 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Текущий РП</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Текущий РП - Растущий Поток</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(180deg, #0f172a 0%, #1e2937 100%);
+            color: #e2e8f0;
+            margin: 0;
+            padding: 16px;
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
 
-<style>
-body {
-    font-family: sans-serif;
-    background: linear-gradient(180deg, #0f172a, #334155);
-    color: white;
-    padding: 16px;
-    max-width: 420px;
-    margin: auto;
-}
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 15px 0 30px;
+        }
 
-.card {
-    background: #1e2937;
-    padding: 20px;
-    border-radius: 16px;
-    border: 1px solid #334155;
-}
+        .back-btn, .home-btn {
+            position: absolute; 
+            top: 50%; 
+            transform: translateY(-50%);
+            background: rgba(51, 65, 85, 0.9);
+            color: white; 
+            border: none; 
+            border-radius: 50%;
+            width: 44px; 
+            height: 44px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            cursor: pointer; 
+            backdrop-filter: blur(8px);
+        }
 
-input {
-    width: 100%;
-    padding: 14px;
-    margin-bottom: 10px;
-    border-radius: 10px;
-    border: 2px solid #334155;
-    background: #0f172a;
-    color: white;
-    text-align: center;
-    font-size: 16px;
-}
+        .back-btn { left: 0; }
+        .home-btn { right: 0; }
 
-button {
-    width: 100%;
-    padding: 14px;
-    background: #334155;
-    border: none;
-    border-radius: 10px;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-}
+        h2 { 
+            margin: 0; 
+            font-size: 1.65rem; 
+            font-weight: 700; 
+            background: linear-gradient(90deg, #60a5fa, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-table {
-    width: 100%;
-    margin-top: 20px;
-    border-collapse: collapse;
-    background: #1e2937;
-}
+        .main-card {
+            background: #1e2937;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            margin-bottom: 24px;
+            border: 1px solid #334155;
+        }
 
-th, td {
-    padding: 10px;
-    text-align: center;
-    border-bottom: 1px solid #334155;
-}
+        .section-title {
+            color: #60a5fa;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 24px;
+        }
 
-th {
-    background: #334155;
-}
+        .input-group {
+            margin-bottom: 20px;
+        }
 
-tr:nth-child(even) {
-    background: #293548;
-}
+        .input-label {
+            display: block;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
 
-.opening {
-    background: #334155;
-    font-weight: bold;
-}
-</style>
+        .deposit-input {
+            width: 88%;
+            padding: 16px 18px;
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 16px;
+            color: white;
+            font-size: 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .deposit-input:focus {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
+            outline: none;
+        }
+
+        .apply-btn {
+            width: 88%;
+            margin: 20px auto 0;
+            display: block;
+            padding: 16px;
+            background: linear-gradient(135deg, #334155, #475569);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .apply-btn:active {
+            transform: scale(0.97);
+            background: linear-gradient(135deg, #475569, #64748b);
+        }
+
+        /* ===================== ТАБЛИЦА ===================== */
+        table {
+            width: 100%; 
+            border-collapse: collapse; 
+            background: #1e2937;
+            font-size: 10.5px; 
+            border-radius: 20px; 
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        th {
+            background: linear-gradient(135deg, #334155, #475569);
+            color: #c4d0ff;
+            padding: 14px 6px;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 6px;
+            text-align: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        tr:hover {
+            background: #253549;
+        }
+
+        .pct { color: #a5b4fc; font-weight: 500; }
+        .vpotoke { color: #fbbf24; font-weight: 600; }
+        .nach { color: #34d399; font-weight: 600; }
+        .koshelek { color: #60a5fa; font-weight: 600; }
+
+        .opening-row {
+            background: linear-gradient(90deg, #1e40af, #3b82f6) !important;
+            color: white;
+            font-weight: 700;
+        }
+
+        .error { 
+            color: #f87171; 
+            font-size: 0.95rem; 
+            margin-top: 12px; 
+            text-align: center; 
+            display: none; 
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="card">
-    <h3>Параметры потока</h3>
+    <div class="header-container">
+        <a href="growing.html" class="back-btn">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </a>
+        
+        <h2>Текущий РП</h2>
 
-    <input id="vpotoke" placeholder="0.00">
-    <input id="lastNach" placeholder="0.00">
-    <input id="koshelek" placeholder="0.00">
+        <a href="index.html" class="home-btn">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+        </a>
+    </div>
 
-    <button onclick="calculate()">Применить</button>
-</div>
+    <div class="main-card">
+        <div class="section-title">Параметры потока</div>
+        
+        <div class="input-group">
+            <label class="input-label">В потоке</label>
+            <input type="number" id="vpotoke" class="deposit-input" placeholder="0.00" onfocus="this.placeholder=''" onblur="if(!this.value) this.placeholder='0.00'" oninput="clearTable()">
+        </div>
 
-<table id="table" style="display:none;">
-<thead>
-<tr>
-<th>Дата</th>
-<th>День</th>
-<th>%</th>
-<th>Поток</th>
-<th>Начисление</th>
-<th>Кошелек</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
+        <div class="input-group">
+            <label class="input-label">Последнее начисление</label>
+            <input type="number" id="lastNach" class="deposit-input" placeholder="0.00" onfocus="this.placeholder=''" onblur="if(!this.value) this.placeholder='0.00'" oninput="clearTable()">
+        </div>
+
+        <div class="input-group">
+            <label class="input-label">На кошельке</label>
+            <input type="number" id="koshelek" class="deposit-input" placeholder="0.00" onfocus="this.placeholder=''" onblur="if(!this.value) this.placeholder='0.00'" oninput="clearTable()">
+        </div>
+
+        <button class="apply-btn" onclick="calculateCurrent()">Применить</button>
+
+        <div id="error" class="error"></div>
+    </div>
+
+    <table id="resultTable" style="display: none;">
+        <thead>
+            <tr>
+                <th style="width: 18%;">Дата</th>
+                <th style="width: 8%;">Дни</th>
+                <th style="width: 14%;">Процент</th>
+                <th style="width: 20%;">В потоке</th>
+                <th style="width: 20%;">Начисление</th>
+                <th style="width: 20%;">Кошелек</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
 
 <script>
-// ===== автоформат =====
-function formatInput(value) {
-    value = value.replace(/\s/g, '').replace(',', '.');
-    if (!value) return '';
-    return Number(value).toLocaleString('ru-RU', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
-}
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
 
-function parseValue(value) {
-    return parseFloat(value.replace(/\s/g, '').replace(',', '.')) || 0;
-}
+    function formatNumber(num) {
+        return num.toLocaleString('ru-RU', { 
+            minimumFractionDigits: 2, 
+            maximumFractionDigits: 2 
+        });
+    }
 
-document.querySelectorAll("input").forEach(input => {
+    function clearTable() {
+        document.getElementById('resultTable').style.display = 'none';
+        document.getElementById('error').style.display = 'none';
+    }
 
-    input.addEventListener("focus", () => {
-        if (input.value === "0.00") input.value = "";
-        input.placeholder = "";
-    });
+    function calculateCurrent() {
+        let vpotoke = parseFloat(document.getElementById('vpotoke').value) || 0;
+        let lastNach = parseFloat(document.getElementById('lastNach').value) || 0;
+        let koshelek = parseFloat(document.getElementById('koshelek').value) || 0;
 
-    input.addEventListener("blur", () => {
-        if (!input.value) {
-            input.placeholder = "0.00";
+        const error = document.getElementById('error');
+        const tbody = document.getElementById('tableBody');
+        const table = document.getElementById('resultTable');
+
+        tbody.innerHTML = '';
+        error.style.display = 'none';
+
+        if (vpotoke <= 0 || lastNach <= 0 || koshelek < 0) {
+            error.style.display = 'block';
+            error.textContent = 'Все поля должны быть заполнены положительными числами';
             return;
         }
-        input.value = formatInput(input.value);
-    });
 
-});
-
-// ===== расчет =====
-function calculate() {
-
-    let vpotoke = parseValue(document.getElementById('vpotoke').value);
-    let lastNach = parseValue(document.getElementById('lastNach').value);
-    let koshelek = parseValue(document.getElementById('koshelek').value);
-
-    const tbody = document.getElementById('tbody');
-    const table = document.getElementById('table');
-
-    tbody.innerHTML = '';
-
-    if (vpotoke <= 0 || lastNach < 0 || koshelek < 0) {
-        table.style.display = 'none';
-        return;
-    }
-
-    table.style.display = 'table';
-
-    let date = new Date();
-    let percent = (lastNach / vpotoke) * 100;
-
-    // текущий
-    tbody.innerHTML += `
-    <tr class="opening">
-        <td>ТЕКУЩИЙ</td>
-        <td>-</td>
-        <td>${percent.toFixed(4)}%</td>
-        <td>${formatInput(vpotoke.toString())}</td>
-        <td>${formatInput(lastNach.toString())}</td>
-        <td>${formatInput(koshelek.toString())}</td>
-    </tr>
-    `;
-
-    let prev = lastNach;
-
-    for (let day = 1; day <= 180; day++) {
-
-        if (date.getDay() === 0) {
-            date.setDate(date.getDate() + 1);
-            continue;
+        if (lastNach >= vpotoke) {
+            error.style.display = 'block';
+            error.textContent = 'Начисление не может быть больше или равно сумме в потоке';
+            return;
         }
 
-        vpotoke -= prev;
-        koshelek += prev;
+        table.style.display = 'table';
 
-        let newPercent = percent + day * 0.0033;
-        let nach = vpotoke * (newPercent / 100);
+        let currentDate = new Date();
+        let currentPercent = (lastNach / vpotoke) * 100;
 
-        tbody.innerHTML += `
-        <tr>
-            <td>${date.toLocaleDateString('ru-RU')}</td>
-            <td>${day}</td>
-            <td>${newPercent.toFixed(4)}%</td>
-            <td>${formatInput(vpotoke.toString())}</td>
-            <td>${formatInput(nach.toString())}</td>
-            <td>${formatInput(koshelek.toString())}</td>
-        </tr>
+        // Строка "ТЕКУЩИЙ"
+        let openRow = document.createElement('tr');
+        openRow.classList.add('opening-row');
+        openRow.innerHTML = `
+            <td>ТЕКУЩИЙ</td>
+            <td>-</td>
+            <td class="pct">${currentPercent.toFixed(4)}%</td>
+            <td class="vpotoke">${formatNumber(vpotoke)}</td>
+            <td class="nach">${formatNumber(lastNach)}</td>
+            <td class="koshelek">${formatNumber(koshelek)}</td>
         `;
+        tbody.appendChild(openRow);
 
-        prev = nach;
-        date.setDate(date.getDate() + 1);
+        let previousNachislenie = lastNach;
 
-        if (vpotoke < 0.01) break;
+        for (let day = 1; day <= 180; day++) {
+            while (currentDate.getDay() === 0) {
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            vpotoke -= previousNachislenie;
+            koshelek += previousNachislenie;
+
+            if (vpotoke < 0) vpotoke = 0;
+
+            let nextPercent = currentPercent + day * 0.0033;
+            let nachislenie = vpotoke * (nextPercent / 100);
+
+            let dateStr = currentDate.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: '2-digit'
+            });
+
+            let row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${dateStr}</td>
+                <td>${day}</td>
+                <td class="pct">${nextPercent.toFixed(4)}%</td>
+                <td class="vpotoke">${formatNumber(vpotoke)}</td>
+                <td class="nach">${formatNumber(nachislenie)}</td>
+                <td class="koshelek">${formatNumber(koshelek)}</td>
+            `;
+
+            tbody.appendChild(row);
+
+            previousNachislenie = nachislenie;
+            currentDate.setDate(currentDate.getDate() + 1);
+
+            if (vpotoke < 0.01) break;
+        }
     }
-}
 </script>
-
 </body>
 </html>
