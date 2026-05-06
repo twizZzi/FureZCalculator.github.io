@@ -24,16 +24,8 @@
             margin: 10px 0 25px;
         }
 
-        .back-btn {
-            position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-            background: #334155; color: white; border: none; border-radius: 12px;
-            width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; text-decoration: none;
-        }
-
-        .home-btn {
+        .back-btn, .home-btn {
             position: absolute;
-            right: 0;
             top: 50%;
             transform: translateY(-50%);
             background: #334155;
@@ -46,35 +38,50 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s;
             text-decoration: none;
         }
 
-        .home-btn:active {
+        .back-btn { left: 0; }
+        .home-btn { right: 0; }
+
+        .home-btn:active, .back-btn:active {
             background: #475569;
             transform: translateY(-50%) scale(0.9);
         }
 
-        h2 { margin: 0; font-size: 1.4rem; color: #c4d0ff; text-align: center; }
+        h2 { 
+            margin: 0; 
+            font-size: 1.45rem; 
+            color: #c4d0ff; 
+            text-align: center; 
+        }
 
         .card {
-            background: #1e2937; border-radius: 18px; padding: 20px;
-            margin-bottom: 22px; width: 100%; box-sizing: border-box;
+            background: #1e2937;
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 22px;
         }
 
-        .input-label { display: block; margin: 12px 0 6px; color: #94a3b8; font-size: 0.97rem; }
-        
-        .deposit-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #94a3b8;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
 
         .deposit-input {
-            flex: 1; padding: 16px 14px; background: #334155;
-            border: 2px solid #24a484; border-radius: 14px;
-            color: white; font-size: 1.1rem; text-align: center;
-        }
-
-        .currency-select {
-            flex: 1;
-            padding: 16px 10px;
+            width: 100%;
+            padding: 16px 14px;
             background: #334155;
             border: 2px solid #24a484;
             border-radius: 14px;
@@ -83,30 +90,59 @@
             text-align: center;
         }
 
+        .currency-select {
+            width: 100%;
+            padding: 16px 14px;
+            background: #334155;
+            border: 2px solid #24a484;
+            border-radius: 14px;
+            color: white;
+            font-size: 1.1rem;
+            text-align: center;
+            margin-top: 8px;
+        }
+
         .note {
             font-size: 0.86rem;
             color: #64748b;
-            margin-top: 10px;
+            text-align: center;
+            margin-top: 12px;
         }
 
         table {
-            width: 100%; border-collapse: collapse; background: #1e2937;
-            font-size: 10px; border-radius: 14px; overflow: hidden; table-layout: fixed;
+            width: 100%; 
+            border-collapse: collapse; 
+            background: #1e2937;
+            font-size: 10px; 
+            border-radius: 14px; 
+            overflow: hidden;
+            table-layout: fixed;
         }
 
-        th, td { padding: 8px 2px; text-align: center; border-bottom: 1px solid #475569; }
-        th { background: #334155; color: #c4d0ff; }
+        th, td { 
+            padding: 9px 4px; 
+            text-align: center; 
+            border-bottom: 1px solid #475569; 
+        }
+        th { 
+            background: #334155; 
+            color: #c4d0ff; 
+            font-weight: 600;
+        }
 
         .pct { color: #a5b4fc; }
         .vpotoke { color: #fbbf24; }
-        .opening-row { background-color: #334155 !important; font-weight: bold; }
+        .opening-row { 
+            background-color: #334155 !important; 
+            font-weight: bold; 
+        }
         .nach { color: #34d399; font-weight: bold; }
         .koshelek { color: #60a5fa; font-weight: bold; }
 
         .error { 
             color: #f87171; 
             font-size: 0.9rem; 
-            margin-top: 8px; 
+            margin-top: 10px; 
             text-align: center; 
             display: none; 
         }
@@ -133,22 +169,28 @@
     </div>
 
     <div class="card">
-        <label class="input-label">В потоке</label>
-        <div class="deposit-row">
-            <input type="number" id="vpotoke" class="deposit-input" value="531427.84" oninput="calculateCurrent()">
+        <div class="input-group">
+            <label class="input-label">Сумма в потоке</label>
+            <div class="input-wrapper">
+                <input type="number" id="vpotoke" class="deposit-input" value="531427.84" oninput="calculateCurrent()">
+            </div>
             <select id="currency" class="currency-select" onchange="calculateCurrent()">
                 <option value="RUB">RUB</option>
                 <option value="USDT">USDT</option>
             </select>
         </div>
 
-        <label class="input-label">Последнее начисление</label>
-        <input type="number" id="lastNach" class="deposit-input" value="1360.46" style="width: 100%; margin-bottom: 12px;" oninput="calculateCurrent()">
+        <div class="input-group">
+            <label class="input-label">Последнее начисление</label>
+            <input type="number" id="lastNach" class="deposit-input" value="1360.46" oninput="calculateCurrent()">
+        </div>
 
-        <label class="input-label">Кошелек</label>
-        <input type="number" id="koshelek" class="deposit-input" value="51133.10" style="width: 100%;" oninput="calculateCurrent()">
-        
-        <div class="note" id="limitNote">* от 1 000 до ∞</div>
+        <div class="input-group">
+            <label class="input-label">На кошельке</label>
+            <input type="number" id="koshelek" class="deposit-input" value="51133.10" oninput="calculateCurrent()">
+        </div>
+
+        <div class="note" id="limitNote">* Минимальная сумма в потоке — 1 000</div>
         <div id="error" class="error"></div>
     </div>
 
@@ -184,9 +226,9 @@
     }
 
     function calculateCurrent() {
-        const vpotokeInput = parseFloat(document.getElementById('vpotoke').value) || 0;
-        const lastNachInput = parseFloat(document.getElementById('lastNach').value) || 0;
-        const koshelekInput = parseFloat(document.getElementById('koshelek').value) || 0;
+        const vpotoke = parseFloat(document.getElementById('vpotoke').value) || 0;
+        const lastNach = parseFloat(document.getElementById('lastNach').value) || 0;
+        const koshelek = parseFloat(document.getElementById('koshelek').value) || 0;
         const currency = document.getElementById('currency').value;
         const limit = limits[currency];
 
@@ -196,7 +238,7 @@
 
         tbody.innerHTML = '';
 
-        if (vpotokeInput < limit.min) {
+        if (vpotoke < limit.min) {
             error.style.display = 'block';
             error.textContent = `⚠ Сумма в потоке должна быть от ${limit.min.toLocaleString('ru-RU')} ${limit.symbol}`;
             table.style.display = 'none';
@@ -207,12 +249,11 @@
 
         table.style.display = 'table';
 
-        let vPotoke = vpotokeInput;
-        let koshelek = koshelekInput;
+        let vPotoke = vpotoke;
+        let currentKoshelek = koshelek;
         let currentDate = new Date();
 
-        // Текущий процент рассчитывается из последнего начисления
-        let currentPercent = lastNachInput > 0 ? (lastNachInput / vPotoke) * 100 : 0.1;
+        let currentPercent = lastNach > 0 ? (lastNach / vPotoke) * 100 : 0.1;
 
         // Первая строка — текущее состояние
         let openRow = document.createElement('tr');
@@ -222,12 +263,12 @@
             <td>-</td>
             <td class="pct">${currentPercent.toFixed(4)}%</td>
             <td class="vpotoke">${formatNumber(vPotoke)}</td>
-            <td class="nach">${formatNumber(lastNachInput)}</td>
-            <td class="koshelek">${formatNumber(koshelek)}</td>
+            <td class="nach">${formatNumber(lastNach)}</td>
+            <td class="koshelek">${formatNumber(currentKoshelek)}</td>
         `;
         tbody.appendChild(openRow);
 
-        let previousNachislenie = lastNachInput;
+        let previousNachislenie = lastNach;
 
         for (let day = 1; day <= 180; day++) {
             while (currentDate.getDay() === 0) {
@@ -235,7 +276,7 @@
             }
 
             vPotoke -= previousNachislenie;
-            koshelek += previousNachislenie;
+            currentKoshelek += previousNachislenie;
 
             let nextPercent = currentPercent + day * 0.0033;
             let nachislenie = vPotoke * (nextPercent / 100);
@@ -253,11 +294,10 @@
                 <td class="pct">${nextPercent.toFixed(4)}%</td>
                 <td class="vpotoke">${formatNumber(vPotoke)}</td>
                 <td class="nach">${formatNumber(nachislenie)}</td>
-                <td class="koshelek">${formatNumber(koshelek)}</td>
+                <td class="koshelek">${formatNumber(currentKoshelek)}</td>
             `;
 
             tbody.appendChild(row);
-
             previousNachislenie = nachislenie;
             currentDate.setDate(currentDate.getDate() + 1);
 
