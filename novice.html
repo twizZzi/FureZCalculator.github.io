@@ -140,19 +140,8 @@
         text-align: center;
     }
 
-    .note {
-        font-size: 0.86rem;
-        color: #64748b;
-        margin-top: 10px;
-    }
-
-    .error {
-        color: #f87171;
-        font-size: 0.9rem;
-        margin-top: 8px;
-        text-align: center;
-        display: none;
-    }
+    .note { font-size: 0.86rem; color: #64748b; margin-top: 10px; }
+    .error { color: #f87171; font-size: 0.9rem; margin-top: 8px; text-align: center; display: none; }
 
     .ecr-rate {
         margin-top: 12px;
@@ -160,11 +149,7 @@
         border-top: 1px solid #475569;
         font-size: 1.05rem;
     }
-
-    .ecr-rate span {
-        color: #60a5fa;
-        font-weight: 600;
-    }
+    .ecr-rate span { color: #60a5fa; font-weight: 600; }
 
     .refresh-btn {
         background: #3b82f6;
@@ -177,66 +162,9 @@
         margin-top: 8px;
         width: 100%;
     }
+    .refresh-btn:active { background: #2563eb; transform: scale(0.98); }
 
-    .refresh-btn:active {
-        background: #2563eb;
-        transform: scale(0.98);
-    }
-
-    .last-update {
-        font-size: 0.8rem;
-        color: #64748b;
-        margin-top: 4px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        background: #1e2937;
-        font-size: 11.5px;
-        border-radius: 14px;
-        overflow: hidden;
-        margin-top: 8px;
-        table-layout: fixed;
-    }
-
-    th, td {
-        padding: 10px 2px;
-        text-align: center;
-        border-bottom: 1px solid #475569;
-        word-wrap: break-word;
-    }
-
-    th {
-        background: #334155;
-        color: #c4d0ff;
-        font-weight: 600;
-    }
-
-    th:nth-child(1) { width: 22%; }
-    th:nth-child(2) { width: 12%; }
-    th:nth-child(3) { width: 22%; }
-    th:nth-child(4) { width: 22%; }
-    th:nth-child(5) { width: 22%; }
-
-    tbody tr:nth-child(even) {
-        background-color: #252f3f;
-    }
-
-    .opening-row {
-        background-color: #334155 !important;
-        font-weight: bold;
-    }
-
-    .nach { color: #34d399; font-weight: bold; }
-    .koshelek { color: #60a5fa; font-weight: bold; }
-    .vpotoke { color: #fbbf24; font-weight: bold; }
-
-    .deposit-input::-webkit-outer-spin-button,
-    .deposit-input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
+    .last-update { font-size: 0.8rem; color: #64748b; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -262,8 +190,7 @@
     <div class="card">
         <label class="deposit-label">Депозит</label>
         <div class="deposit-row">
-            <input type="number" id="deposit" class="deposit-input" value="100000"
-                   oninput="validateAndCalculate()">
+            <input type="number" id="deposit" class="deposit-input" value="100000" oninput="validateAndCalculate()">
             <select id="currency" class="currency-select" onchange="validateAndCalculate()">
                 <option value="RUB">RUB</option>
                 <option value="USDT">USDT</option>
@@ -281,7 +208,7 @@
 
         <div class="ecr-rate">
             Курс 1 ECR = <span id="ecrRate">—</span> ₽
-            <div class="last-update" id="lastUpdate"></div>
+            <div class="last-update" id="lastUpdate">Загрузка курса...</div>
         </div>
 
         <button class="refresh-btn" onclick="updateECRRate()">🔄 Обновить курс</button>
@@ -305,8 +232,61 @@
     tg.ready();
     tg.expand();
 
-    let currentECRRate = null;
+    // ==================== КУРС ECR ====================
+    async function updateECRRate() {
+        const rateEl = document.getElementById('ecrRate');
+        const updateEl = document.getElementById('lastUpdate');
+        rateEl.textContent = "Загрузка...";
+        updateEl.textContent = "Попытка подключения...";
 
+        const url = "https://sberkassa.site/public_deals/fetch?offset=0&limit=3&to=RUB&from=ECR";
+
+        try {
+            // Лучший рабочий прокси на данный момент
+            const proxyUrl = "https://api.allorigins.win/get?url=" + encodeURIComponent(url);
+            const response = await fetch(proxyUrl);
+            
+            if (!response.ok) throw new Error("Network response not ok");
+
+            const data = await response.json();
+            const json = JSON.parse(data.contents);   // allorigins возвращает в .contents
+
+            if (json.result === "ok" && json.data && json.data.length > 0) {
+                const rate = parseFloat(json.data[0].back_rate);
+                
+                document.getElementById('ecrRate').textContent = rate.toLocaleString('ru-RU');
+                document.getElementById('lastUpdate').textContent = "Обновлено: только что";
+
+                localStorage.setItem('ecr_rate', rate);
+                localStorage.setItem('ecr_last_update', Date.now());
+                return;
+            }
+        } catch (e) {
+            console.error("Ошибка:", e);
+        }
+
+        // Если не получилось
+        rateEl.textContent = "—";
+        updateEl.textContent = "Не удалось загрузить курс. Нажми кнопку ещё раз.";
+    }
+
+    function loadSavedRate() {
+        const savedRate = localStorage.getItem('ecr_rate');
+        const savedTime = localStorage.getItem('ecr_last_update');
+
+        if (savedRate) {
+            document.getElementById('ecrRate').textContent = parseFloat(savedRate).toLocaleString('ru-RU');
+            
+            if (savedTime) {
+                const hours = ((Date.now() - parseInt(savedTime)) / 3600000).toFixed(1);
+                document.getElementById('lastUpdate').textContent = `Обновлено: ${hours} ч. назад`;
+            }
+        }
+        // Пробуем обновить сразу
+        setTimeout(updateECRRate, 800);
+    }
+
+    // ==================== Остальной код (без изменений) ====================
     const limits = {
         RUB: { min: 2000, max: 500000, symbol: '₽' },
         USDT: { min: 20, max: 2000, symbol: '₮' },
@@ -315,77 +295,9 @@
     };
 
     function formatNumber(num) {
-        return num.toLocaleString('ru-RU', { 
-            minimumFractionDigits: 2, 
-            maximumFractionDigits: 2 
-        });
+        return num.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    // ==================== КУРС ECR (с несколькими прокси) ====================
-    async function updateECRRate() {
-        const rateEl = document.getElementById('ecrRate');
-        const updateEl = document.getElementById('lastUpdate');
-        rateEl.textContent = "Загрузка...";
-
-        const targetUrl = 'https://sberkassa.site/public_deals/fetch?offset=0&limit=3&to=RUB&from=ECR';
-        
-        // Список прокси (пробуем по очереди)
-        const proxies = [
-            'https://corsproxy.io/?',
-            'https://api.allorigins.win/raw?url=',
-            'https://proxy.cors.sh/'
-        ];
-
-        for (let proxy of proxies) {
-            try {
-                const res = await fetch(proxy + encodeURIComponent(targetUrl), {
-                    method: 'GET',
-                    headers: proxy.includes('cors.sh') ? { 'x-cors-api-key': 'temp' } : {}
-                });
-
-                if (!res.ok) continue;
-
-                const json = await res.json();
-
-                if (json.result === 'ok' && json.data && json.data.length > 0) {
-                    currentECRRate = parseFloat(json.data[0].back_rate);
-                    const now = Date.now();
-
-                    localStorage.setItem('ecr_rate', currentECRRate);
-                    localStorage.setItem('ecr_last_update', now);
-
-                    rateEl.textContent = currentECRRate.toLocaleString('ru-RU');
-                    updateEl.textContent = `Обновлено: только что`;
-                    return; // успешно — выходим
-                }
-            } catch (e) {
-                console.log('Прокси не сработал:', proxy);
-            }
-        }
-
-        // Если все прокси упали
-        rateEl.textContent = "—";
-        updateEl.textContent = "Ошибка загрузки. Попробуйте позже.";
-    }
-
-    function loadSavedRate() {
-        const savedRate = localStorage.getItem('ecr_rate');
-        const savedTime = localStorage.getItem('ecr_last_update');
-
-        if (savedRate && savedTime) {
-            currentECRRate = parseFloat(savedRate);
-            document.getElementById('ecrRate').textContent = currentECRRate.toLocaleString('ru-RU');
-
-            const hoursAgo = (Date.now() - parseInt(savedTime)) / (1000 * 60 * 60);
-            document.getElementById('lastUpdate').textContent = `Обновлено: ${hoursAgo.toFixed(1)} ч. назад`;
-
-            if (hoursAgo > 12) updateECRRate();
-        } else {
-            updateECRRate();
-        }
-    }
-
-    // ==================== Остальная логика ====================
     function validateAndCalculate() {
         const depositInput = document.getElementById('deposit');
         const currencySelect = document.getElementById('currency');
@@ -400,9 +312,7 @@
 
         noteDiv.textContent = `* от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
 
-        const isValid = deposit >= limit.min && deposit <= limit.max && deposit > 0;
-
-        if (!isValid) {
+        if (deposit < limit.min || deposit > limit.max || deposit <= 0) {
             errorDiv.style.display = 'block';
             errorDiv.textContent = `⚠ Сумма должна быть от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
             table.style.display = 'none';
@@ -446,17 +356,12 @@
                 currentDate.setDate(currentDate.getDate() + 1);
                 continue;
             }
-            
             dayCount++;
             let nachislenie = vPotoke * percent;
             koshelek += nachislenie;
             vPotoke -= nachislenie;
 
-            let dateStr = currentDate.toLocaleDateString('ru-RU', {
-                day: '2-digit', 
-                month: '2-digit', 
-                year: 'numeric'
-            });
+            let dateStr = currentDate.toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'numeric'});
 
             let row = document.createElement('tr');
             row.innerHTML = `
