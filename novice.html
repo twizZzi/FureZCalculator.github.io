@@ -16,7 +16,6 @@
         margin: 0 auto;
     }
 
-    /* Шапка с кнопкой назад и заголовком */
     .header-container {
         display: flex;
         align-items: center;
@@ -80,7 +79,6 @@
         text-align: center;
     }
 
-    /* Карточки ввода и инфо */
     .card {
         background: #1e2937;
         border-radius: 18px;
@@ -103,44 +101,43 @@
     }
 
     .deposit-label {
-            display: block;
-            margin-bottom: 10px;
-            color: #94a3b8;
-            font-size: 0.97rem;
-        }
+        display: block;
+        margin-bottom: 10px;
+        color: #94a3b8;
+        font-size: 0.97rem;
+    }
 
-        .deposit-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
+    .deposit-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
 
-        .deposit-input {
-            flex: 1;
-            padding: 16px 14px;
-            background: #334155;
-            border: 2px solid #3b82f6;
-            border-radius: 14px;
-            color: white;
-            font-size: 1.1rem;
-            text-align: center;
-            width: 184px;
-        }
+    .deposit-input {
+        flex: 1;
+        padding: 16px 14px;
+        background: #334155;
+        border: 2px solid #3b82f6;
+        border-radius: 14px;
+        color: white;
+        font-size: 1.1rem;
+        text-align: center;
+    }
 
-        .deposit-input:focus {
-            border-color: #60a5fa;
-        }
+    .deposit-input:focus {
+        border-color: #60a5fa;
+    }
 
-        .currency-select {
-            flex: 1;
-            padding: 16px 10px;
-            background: #334155;
-            border: 2px solid #3b82f6;
-            border-radius: 14px;
-            color: white;
-            font-size: 1.1rem;
-            text-align: center;
-        }
+    .currency-select {
+        flex: 1;
+        padding: 16px 10px;
+        background: #334155;
+        border: 2px solid #3b82f6;
+        border-radius: 14px;
+        color: white;
+        font-size: 1.1rem;
+        text-align: center;
+    }
 
     .note {
         font-size: 0.86rem;
@@ -156,7 +153,42 @@
         display: none;
     }
 
-    /* Таблица */
+    /* Стили для курса ECR */
+    .ecr-rate {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #475569;
+        font-size: 1.05rem;
+    }
+
+    .ecr-rate span {
+        color: #60a5fa;
+        font-weight: 600;
+    }
+
+    .refresh-btn {
+        background: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 10px 16px;
+        font-size: 0.95rem;
+        cursor: pointer;
+        margin-top: 8px;
+        width: 100%;
+    }
+
+    .refresh-btn:active {
+        background: #2563eb;
+        transform: scale(0.98);
+    }
+
+    .last-update {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-top: 4px;
+    }
+
     table {
         width: 100%;
         border-collapse: collapse;
@@ -181,17 +213,16 @@
         font-weight: 600;
     }
 
-    th:nth-child(1) { width: 22%; } /* Дата */
-    th:nth-child(2) { width: 12%; } /* День */
-    th:nth-child(3) { width: 22%; } /* В потоке */
-    th:nth-child(4) { width: 22%; } /* Начисление */
-    th:nth-child(5) { width: 22%; } /* Кошелек */
+    th:nth-child(1) { width: 22%; }
+    th:nth-child(2) { width: 12%; }
+    th:nth-child(3) { width: 22%; }
+    th:nth-child(4) { width: 22%; }
+    th:nth-child(5) { width: 22%; }
 
     tbody tr:nth-child(even) {
         background-color: #252f3f;
     }
 
-    /* Стили для строки ОТКРЫТИЕ */
     .opening-row {
         background-color: #334155 !important;
         font-weight: bold;
@@ -206,11 +237,11 @@
         -webkit-appearance: none;
         margin: 0;
     }
-</style>
+    </style>
 </head>
 <body>
 
-        <div class="header-container">
+    <div class="header-container">
         <a href="novicePotok.html" class="back-btn">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -247,6 +278,14 @@
     <div class="info">
         Сумма в потоке = Депозит + 50%<br>
         <strong id="vPotokeInfo">150 000.00</strong>
+
+        <!-- Блок курса ECR -->
+        <div class="ecr-rate" id="ecrBlock">
+            Курс 1 ECR = <span id="ecrRate">—</span> ₽
+            <div class="last-update" id="lastUpdate"></div>
+        </div>
+
+        <button class="refresh-btn" onclick="updateECRRate()">🔄 Обновить курс</button>
     </div>
 
     <table>
@@ -267,6 +306,9 @@
     tg.ready();
     tg.expand();
 
+    let currentECRRate = null;
+    let lastUpdateTime = null;
+
     const limits = {
         RUB: { min: 2000,   max: 500000,  symbol: '₽' },
         USDT: { min: 20,    max: 2000,    symbol: '₮' },
@@ -280,13 +322,64 @@
             maximumFractionDigits: 2 
         });
     }
-    
+
+    // ==================== КУРС ECR ====================
+    async function updateECRRate() {
+        const ecrRateEl = document.getElementById('ecrRate');
+        const lastUpdateEl = document.getElementById('lastUpdate');
+
+        ecrRateEl.textContent = "Загрузка...";
+
+        try {
+            const res = await fetch('https://sberkassa.site/public_deals/fetch?offset=0&limit=3&to=RUB&from=ECR');
+            const json = await res.json();
+
+            if (json.result === 'ok' && json.data && json.data.length > 0) {
+                currentECRRate = parseFloat(json.data[0].back_rate);
+                lastUpdateTime = Date.now();
+
+                localStorage.setItem('ecr_rate', currentECRRate);
+                localStorage.setItem('ecr_last_update', lastUpdateTime);
+
+                ecrRateEl.textContent = currentECRRate.toLocaleString('ru-RU');
+                lastUpdateEl.textContent = `Обновлено: только что`;
+            } else {
+                throw new Error('Неверные данные');
+            }
+        } catch (e) {
+            console.error(e);
+            ecrRateEl.textContent = "—";
+            lastUpdateEl.textContent = `Ошибка загрузки`;
+        }
+    }
+
+    function loadSavedRate() {
+        const savedRate = localStorage.getItem('ecr_rate');
+        const savedTime = localStorage.getItem('ecr_last_update');
+
+        if (savedRate && savedTime) {
+            currentECRRate = parseFloat(savedRate);
+            lastUpdateTime = parseInt(savedTime);
+
+            document.getElementById('ecrRate').textContent = currentECRRate.toLocaleString('ru-RU');
+
+            const hoursAgo = (Date.now() - lastUpdateTime) / (1000 * 60 * 60);
+            document.getElementById('lastUpdate').textContent = `Обновлено: ${hoursAgo.toFixed(1)} ч. назад`;
+
+            if (hoursAgo > 12) {
+                updateECRRate();
+            }
+        } else {
+            updateECRRate();
+        }
+    }
+
+    // ==================== ОСНОВНАЯ ЛОГИКА ====================
     function validateAndCalculate() {
         const depositInput = document.getElementById('deposit');
         const currencySelect = document.getElementById('currency');
         const errorDiv = document.getElementById('depositError');
         const noteDiv = document.getElementById('limitNote');
-        const infoDiv = document.querySelector('.info');
         const table = document.querySelector('table');
         const vPotokeInfo = document.getElementById('vPotokeInfo');
 
@@ -301,14 +394,11 @@
         if (!isValid) {
             errorDiv.style.display = 'block';
             errorDiv.textContent = `⚠ Сумма должна быть от ${limit.min.toLocaleString('ru-RU')} до ${limit.max.toLocaleString('ru-RU')} ${limit.symbol}`;
-            infoDiv.style.display = 'block';      // ← всегда показываем блок
-            vPotokeInfo.textContent = '';         // ← сумма скрыта
             table.style.display = 'none';
             return;
         } 
 
         errorDiv.style.display = 'none';
-        infoDiv.style.display = 'block';
         table.style.display = 'table';
 
         calculateNovice(deposit);
@@ -373,9 +463,11 @@
         }
     }
 
+    // Запуск при загрузке страницы
     window.onload = () => {
         document.querySelector('table').style.display = 'none';
         validateAndCalculate();
+        loadSavedRate();
     };
 </script>
 </html>
